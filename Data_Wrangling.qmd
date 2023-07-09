@@ -1,0 +1,554 @@
+---
+title: "Day 2"
+format: html
+editor: visual
+execute: 
+  eval: false
+toc: true
+toc-depth: 4
+---
+
+# Data Wrangling
+
+... or put differently, welcome to the real world. Real datasets are seldom as tidy and clean as those you have been working with so far. Real data is messy and often you'll need to clean and coerce it into the right format in order to actually analyze it. This session contains a number of examples that serve as cookbook recipes for common data wrangling tasks.
+
+## Useful functions
+
+This section will list several basic R functions that are very useful and should be part of your toolbox.
+
+### ifelse
+
+`ifelse()` allows you to change the values of a vector based on a conditional test. It's useful for recoding data, and you can use it in situations where you don't want to change the underlying data.
+
+The format is:
+
+```{r}
+ifelse(test_condition, value_if_true, value_if_false)
+```
+
+where the test condition is usually some comparison or operation on a vector - anything that results in TRUE or FALSE values
+
+```{r}
+x <- c(-1, 2, 3, -5, 3, NA, -4, 6)
+x >= 0
+
+ifelse(x >= 0, x, 0)  # replace negative values with 0, leave others alone
+
+ifelse(is.na(x), 0, x)  # replace missing values with 0, leave others alone
+
+ifelse(x %% 2 == 0, "even", "odd")  ## remainder of dividing x by 2 is 0 
+```
+
+There's also the useful `replace_na()` function in the tidyr package and `na_if()` in dplyr.
+
+### EXERCISE 1
+
+Where the value in the vector below is positive, take the square root. Where it is negative, substitute in `NA`.
+
+```{r}
+y <- c(4, -1, 3, 6, -7, 10, 20)
+```
+
+### %in%
+
+`%in%` returns TRUE if the value on the left is in the vector on the right, FALSE otherwise. Unlike `==`, if the value on the left is `NA`, it will return FALSE unless `NA` is also in the vector on the right:
+
+```{r}
+x <- c(-1, 2, 3, -5, 3, NA, -4, 6)
+x %in% c(1, 2, 3)
+x == 1 | x == 2 | x == 3
+```
+
+```{r}
+state.name  # built-in vector in R
+
+ifelse(state.name %in% c("Alaska", "Hawaii"), NA, state.name)
+```
+
+### EXERCISE 2
+
+Select the rows from the `evp` data below where the vehicle make is one of FIAT, DATS, GEO, JAGU, or PEUG
+
+```{r}
+evp <- read.csv("data/ev_police_jan.csv")
+
+```
+
+### paste
+
+The `paste()` function is used to join pieces of text:
+
+```{r}
+paste("John", "Oliver")
+```
+
+The default separator between the strings is a space, but you can change it:
+
+```{r}
+paste("John", "Oliver", sep="---")
+```
+
+But, I frequently want to join strings with no space between them:
+
+```{r}
+paste("John", "Oliver", sep="")
+```
+
+There's a shortcut for this:
+
+```{r}
+paste0("John", "Oliver")
+```
+
+If you provide a vector of characters, you can also use the `collapse` argument, which places whatever you provide for `collapse` between the characters of the vector:
+
+```{r}
+paste0(state.name[1:5], collapse = ", and ")
+paste0(state.name[1:5], sep = ", and ") # will not work as intended
+```
+
+### EXERCISE 3
+
+`state.abb` has two-letter abbreviations for US states. `state.region` has the region for each US state. Use `paste()` to join the info from these two vectors together, so the output has entries that look like:
+
+```         
+"AL: South"         "AK: West"          "AZ: West"          "AR: South"  ...
+```
+
+```{r}
+
+```
+
+### seq and seq_along
+
+`seq()` is used to generate sequences of numbers. You can specify the interval between values or how many values you want.
+
+```{r}
+seq(from=1, to=10, by=2)
+```
+
+Note that the sequence output will only have values that are \<= the "to" value.
+
+```{r}
+seq(0, 10, length.out=4)
+```
+
+```{r}
+seq(0, 1, .1)
+```
+
+`seq_along()` behaves similarly, but returns the length of the object passed to it.
+
+```{r}
+seq_along(c(-1, 3, 56, -90))
+```
+
+### EXERCISE 4
+
+Use the `seq()` function to select every 5th row from `state.x77` (it's a matrix built in to R - you can index it like a data frame).
+
+Things you need to figure out: how do you know what the sequence should go to? How do you use the result of seq() to then select the rows?
+
+```{r}
+
+```
+
+### Piping with `|>`
+
+Pipes are a powerful tool for clearly expressing a sequence of multiple operations. You will learn more about them in the Tidyverse workshop, however R 4.1.0 introduced a native pipe operator `|>`. By default, the pipe passes the object on its left-hand side to the first argument of the function on the right-hand side. (Note - the Tidyverse pipe `%>%` allows you to change the placement with a `.` )
+
+```{r}
+mtcars |> names()
+```
+
+## Changing data types
+
+Previously, you discovered that R implicitly coerces variables into other data types when needed. For instance, if you add a `numeric` to a `logical`, the result is a `numeric`. And if you place them together in a vector, the vector will contain two `numeric` values. Alternatively, if you add a `numeric` to a `character`, the operation fails. If you put them together in a vector, both become `character` strings:
+
+```{r}
+TRUE + 5
+v1 <- c(TRUE, 5)
+v1
+
+"One" + 5
+v2 <- c("One", 5)
+v2
+```
+
+There is a hierarchy for data types in R: `logical` \< `integer` \< `numeric` \< `character`.
+
+When variables of different types are somehow combined (with addition, put in the same vector, and so on), R will coerce both to the higher ranking type. That is why `v1` contained `numeric` variables (`numeric` is higher ranked than `logical`) and `v2` contained `character` values (`character` is higher ranked than `numeric`).
+
+Automatic coercion is often useful, but will sometimes cause problems. As an example, a vector of numbers may accidentally be converted to a `character` vector, which will confuse plotting functions. Luckily it is possible to convert objects to other data types. The functions most commonly used for this are `as.logical`, `as.numeric` and `as.character`. Here are some examples of how they can be used:
+
+```{r}
+as.logical(1)           # Should be TRUE
+as.logical("FALSE")     # Should be FALSE
+as.numeric(TRUE)        # Should be 1
+as.numeric("2.718282")  # Should be numeric 2.718282
+as.character(2.718282)  # Should be the string "2.718282"
+as.character(TRUE)      # Should be the string "TRUE"
+```
+
+A word of warning though - conversion only works if R can find a natural conversion between the types. Here are some examples where conversion fails. Note that only some of them cause warning messages:
+
+```{r}
+as.numeric("two")                   # Should be 2
+as.numeric("1+1")                   # Should be 2
+as.numeric("2,718282")              # Should be numeric 2.718282
+as.logical("Vaccines cause autism") # Should be FALSE
+```
+
+### EXERCISE 5
+
+-   What happens if you apply `as.logical` to the `numeric` values 0 and 1? What happens if you apply it to other numbers?
+
+-   What happens if you apply `as.character` to a vector containing `numeric` values?
+
+-   The functions `is.logical`, `is.numeric` and `is.character` can be used to check if a variable is a `logical`, `numeric` or `character`, respectively. What type of object do they return?
+
+-   Is `NA` a `logical`, `numeric` or `character`?
+
+## Dates
+
+Data describing dates and times can be complex, not least because it is written in so many different formats. 1 April 2020 can be written as `2020-04-01`, `20/04/01`, `200401`, `1/4 2020`, `4/1/20`, `1 Apr 20`, and a myriad of other ways. 5 past 6 in the evening can be written as `18:05` or `6.05 pm`. In addition to this ambiguity, time zones, daylight saving time, leap years and even leap seconds make working with dates and times even more complicated.
+
+### Date formats
+
+In most cases, when you read data with dates/times in it into R, it will be read in as character (text) data:
+
+```{r}
+evp <- read.csv("data/ev_police.csv")
+str(evp)
+```
+
+If you want to use this information in a visualization, or aggregate data by month, or use the date information in other ways, you'll need to convert this information into an object that knows about dates and times. The easiest way to do this is with the lubridate package (part of tidyverse).
+
+```{r}
+# install.packages("tidyverse")
+library(lubridate)
+```
+
+It has a series of functions names like:
+
+```{r}
+ymd()
+ymd_hms()
+dmy()
+dmy_h()
+mdy()
+```
+
+And so on, where y=year, m (in the first part)=month, d=day, h=hour, m (in the second part)=minute, s=second. With the function name, you are specifying which parts of a date or time appear in the text you're converting and what order the different parts appear in. You can ignore all of the delimiters and other components like dashes, slashes, or even no delimiter at all. `{lubridate}` can handle most cases:
+
+```{r}
+my_dates <- c("1/13/2020","1/13/20", "01132020", "1-13-2020", "Jan 13 2020", "Jan. 13, 2020") 
+class(my_dates)
+```
+
+```{r}
+my_dates <- mdy(my_dates)
+class(my_dates)
+```
+
+### EXERCISE 6
+
+Make two new columns in the `evp` data frame:
+
+-   Date (capitalized) that converts the date column to a Date type - you can use a function with just the date components, such as `mdy()`, `dmy()`, or `ymd()`
+
+-   datetime: paste (concatenate) the date and time columns together, and then convert the joined string to a datetime object - you'll need to use a function with both date and time components
+
+### Example
+
+Now that we have the data information in a date-type format, we can ask questions such as: what day of the week had the most traffic stops?
+
+```{r}
+wday(evp$Date, label = TRUE) # day of the week of the stop (named)
+table(wday(evp$Date, label=TRUE)) # tally these
+```
+
+The data we have is just for January, which means there are more instances of some days of the week than others. So we want to normalize by the number of Mondays, Tuesdays, etc.
+
+```{r}
+seq.Date(ymd("2017-01-01"), ymd("2017-01-31"), 1)  # days in January 2017
+wday(seq.Date(ymd("2017-01-01"), ymd("2017-01-31"), 1), label=TRUE)  ## as days of the week
+table(wday(seq.Date(ymd("2017-01-01"), ymd("2017-01-31"), 1), label=TRUE))  # tallied
+table(wday(evp$Date, label=TRUE)) / table(wday(seq.Date(ymd("2017-01-01"), ymd("2017-01-31"), 1), label=TRUE)) # together
+```
+
+## Factors
+
+Looking at the days of the week above, the output included this text at the bottom:
+
+```{r}
+Levels: Sun < Mon < Tue < Wed < Thu < Fri < Sat
+```
+
+This is because the days of the week were returned as a ordered factor -- a categorical variable.
+
+Factors are variables with text labels, but the set of values (called levels) that are allowed for the variable is limited, and the values optionally can have a specific order to them. Categorical data is stored in R as `factor` variables. You may ask why a special data structure is needed for categorical data, when we could just use `character` variables to represent the categories.
+
+Let's say that you've conducted a survey on students' smoking habits. The possible responses are *Never*, *Occasionally*, *Regularly* and *Heavy*. From 10 students, you get the following responses:
+
+```{r}
+smoke <- c("Never", "Never", "Heavy", "Never", "Occasionally",
+           "Never", "Never", "Regularly", "Regularly", "No")
+```
+
+Note that the last answer is invalid - `No` was not one of the four answers that were allowed for the question. You could use `table` to get a summary of how many answers of each type that you got:
+
+```{r}
+table(smoke)
+```
+
+But the categories are not presented in the correct order! There is a clear order between the different categories, *Never* \< *Occasionally* \< *Regularly* \< *Heavy*, but `table` doesn't present the results in that way. Moreover, R didn't recognise that `No` was an invalid answer, and treats it just the same as the other categories. This is where `factor` variables come in. They allow you to specify which values your variable can take, and the ordering between them (if any).
+
+### Creating Factors
+
+When creating a `factor` variable, you typically start with a `character`, `numeric` or `logical` variable, the values of which are turned into categories. To turn the `smoke` vector that you created in the previous section into a `factor`, you can use the `factor` function:
+
+```{r}
+smoke2 <- factor(smoke)
+```
+
+You can inspect the elements, and *levels*, i.e. values that the categorical variable takes, as follows:
+
+```{r}
+levels(smoke2)
+```
+
+So far, we haven't solved neither the problem of the categories being in the wrong order nor that invalid `No` value. To fix both these problems, we can use the `levels` argument in `factor`:
+
+```{r}
+smoke2 <- factor(smoke, levels = c("Never", "Occasionally", "Regularly", "Heavy"),
+                        ordered = TRUE)
+
+# Check the results:
+smoke2
+levels(smoke2)
+table(smoke2)
+```
+
+You can control the order in which the levels are presented by choosing which order we write them in in the `levels` argument. The `ordered = TRUE` argument specifies that the order of the variables is *meaningful*.
+
+It can be excluded in cases where you wish to specify the order in which the categories should be presented purely for presentation purposes (e.g. when specifying whether to use the order `Male/Female/Other` or `Female/Male/Other`). Also note that the `No` answer now became an `NA`, which in the case of `factor` variables represents both missing observations and invalid observations. To find the values of `smoke` that became `NA` in `smoke2` you can use `which` and `is.na`:
+
+```{r}
+smoke[which(is.na(smoke2))]
+```
+
+By checking the original values of the `NA` elements, you can see if they should be excluded from the analysis or recoded into a proper category (`No` could for instance be recoded into `Never`).
+
+### Changing factor levels
+
+When we created `smoke2`, one of the elements became an `NA`. `NA` was however not included as a level of the `factor`. Sometimes it is desirable to include `NA` as a level, for instance when you want to analyse rows with missing data. This is easily done using the `addNA` function:
+
+```{r}
+smoke2 <- addNA(smoke2)
+```
+
+If you wish to change the name of one or more of the `factor` levels, you can do it directly via the `levels` function. For instance, we can change the name of the `NA` category, which is the 5th level of `smoke2`, as follows:
+
+```{r}
+levels(smoke2)[5] <- "Invalid answer"
+```
+
+Finally, if you've added more levels than what are actually used, these can be dropped using the `droplevels` function:
+
+```{r}
+smoke2 <- factor(smoke, levels = c("Never","Occasionally","Regularly","Heavy","Constantly"),
+                        ordered = TRUE)
+levels(smoke2)
+smoke2 <- droplevels(smoke2)
+levels(smoke2)
+```
+
+### Changing the order of levels
+
+Now suppose that we'd like the levels of the `smoke2` variable to be presented in the reverse order: *Heavy*, *Regularly*, *Occasionally*, and *Never*. This can be done by a new call to `factor`, where the new level order is specified in the `levels` argument:
+
+```{r}
+smoke2 <- factor(smoke2, levels = c("Heavy", "Regularly", "Occasionally", "Never"))
+
+# Check the results:
+levels(smoke2)
+```
+
+### Combining levels
+
+Finally, `levels` can be used to merge categories by replacing their separate names with a single name. For instance, we can combine the smoking categories *Occasionally*, *Regularly*, and *Heavy* to a single category named *Yes*. Assuming that these are first, second and third in the list of names (as will be the case if you've run the last code chunk above), here's how to do it:
+
+```{r}
+levels(smoke2)[1:3] <- "Yes"
+levels(smoke2)
+```
+
+### EXERCISE 7
+
+Convert the vector below to a factor. Set the levels in an intentional order.
+
+```{r}
+directions <- c("east", "west", "east", "south", "north", "north", "west", "north", "east")
+```
+
+### EXERCISE 8
+
+Load the `evp` dataset, and convert the column `subject_race` into an ordered variable from most frequent to least frequent
+
+```{r}
+evp <- read.csv("data/ev_police.csv")
+
+```
+
+## Strings
+
+Text in R is represented by `character` strings. These are created using double or single quotes. I recommend double quotes for three reasons. First, it is the default in R, and is the recommended style (see e.g. `?Quotes`). Second, it improves readability - code with double quotes is easier to read because double quotes are easier to spot than single quotes. Third, it will allow you to easily use apostrophes in your strings, which single quotes don't (because apostrophes will be interpreted as the end of the string). Single quotes can however be used if you need to include double quotes inside your string:
+
+```{r}
+# This works:
+text1 <- "An example of a string. Isn't this great?"
+text2 <- 'Another example of a so-called "string".'
+
+# This doesn't work:
+text1_fail <- 'An example of a string. Isn't this great?
+text2_fail <- "Another example of a so-called "string"."
+```
+
+If you check what these two strings look like, you'll notice something funny about `text2`:
+
+```{r}
+text1
+text2
+```
+
+R has put backslash characters, `\`, before the double quotes. The backslash is called an *escape character*, which invokes a different interpretation of the character that follows it. In fact, you can use this to put double quotes inside a string that you define using double quotes:
+
+```{r}
+text2_success <- "Another example of a so-called \"string\"."
+```
+
+There are a number of other special characters that can be included using a backslash: `\n` for a line break (a new line) and `\t` for a tab (a long whitespace) being the most important:
+
+```{r}
+text3 <- "Text...\n\tWith indented text on a new line!"
+```
+
+To print your string in the Console in a way that shows special characters instead of their escape character-versions, use the function `cat`:
+
+```{r}
+cat(text3)
+```
+
+### `{stringr}` package
+
+The stringr package provides a cohesive set of functions designed to make working with strings as easy as possible. It is part of the `{tidyverse}` set of packages.
+
+```{r}
+# intsall.packages("tidyverse")
+library(stringr)
+```
+
+Here is a handy [cheat-sheet](https://github.com/rstudio/cheatsheets/blob/main/strings.pdf) for string manipulation with {`stringr}`. All functions start with `str_` and take a vector of strings as the first argument.
+
+#### Cleaning text labels
+
+There are functions for converting and cleaning up text data:
+
+```{r}
+str_to_lower("John Oliver")
+```
+
+```{r}
+str_to_title("r bootcamp workshop day 2")
+```
+
+```{r}
+str_trim("     John ") # remove whitespace beginning and end
+```
+
+```{r}
+str_squish("r     bootcamp    workshop  day   2   ") # trim plus collapse interior spaces
+```
+
+There are functions for padding strings
+
+```{r}
+str_pad("8831", width = 5, side="left", pad="0")
+```
+
+#### Detecting or Replacing strings
+
+Then there are lots of functions to detect or replace substrings in a string. These functions will take either a fixed string for comparison or a regular expression. Regular expressions, or regex, are a way of writing patterns that match text. We can't cover them all within this workshop, but they're well worth learning and will save you lots of time if you work with text at all.
+
+They default to interpreting the "pattern" input as a regex. This doesn't make much difference if you're only searching for letters and spaces. If you need to search for punctuation, you will likely want to tell it it's not a regex.
+
+These functions all take the string to work on first, then the pattern to match/detect, then other options.
+
+```{r}
+str_detect("John Oliver", "liver")
+str_detect("John Oliver", "heart")
+```
+
+```{r}
+# don't use a regex, and don't care about case
+str_detect("John Oliver", fixed("LIVER", ignore_case=TRUE))
+```
+
+`fixed()` is useful to tell it to make a literal match. To get a case-insensitive match you have to use either `fixed()` or `regex()` explicitly. For example, a "." has special meaning in regular expressions (it matches any character), so if you want to match a literal period, `fixed()` is useful:
+
+```{r}
+str_detect("John Oliver", ".")
+str_detect("John Oliver", fixed("."))
+```
+
+You can also match to the beginning or the end of strings:
+
+```{r}
+str_starts("Oliver", "Ol")
+str_ends("Oliver", "ver")
+```
+
+You can also just get the elements of the vector that do match:
+
+```{r}
+my_string_vector <- c("Political Science", "Biological Science", "Pol. Science", "technology")
+str_subset( my_string_vector, regex("pol.+sci.+", ignore_case=TRUE))
+```
+
+Replacing -- there is a version of each for replacing the first occurrence vs. all. First, just deletion:
+
+```{r}
+str_remove("John Oliver is a person who exists", "i")
+str_remove_all("John Oliver is a person who exists", "i")
+```
+
+Replacing with something new:
+
+```{r}
+str_replace("John Oliver is a person who exists", "i", "a")
+str_replace_all("John Oliver is a person who exists", "i", "a")
+```
+
+You can split a string, which can get complicated, because you get lists back, unless you know how many components to expect:
+
+```{r}
+str_split("John Oliver is a person who exists", pattern=" ")
+```
+
+```{r}
+# here fixed means fixed number of components, not a fixed pattern as above
+str_split_fixed("John Oliver is a person who exists", pattern=" ", n = 3)
+```
+
+### EXERCISE 9
+
+Load the `evp` dataset, and find all the rows where the reason for stop is a moving violation of any type
+
+### EXERCISE 10
+
+Convert the department name from all capitals to title case
+
+### EXERCISE 11
+
+Clean the location column, which should be a five letter zip code, such that values like "9121" are corrected to "09121"
