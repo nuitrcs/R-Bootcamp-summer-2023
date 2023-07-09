@@ -8,7 +8,7 @@
 
 # Materials and Setup
 
-**[Slides](git@github.com:nuitrcs/R-Bootcamp-summer-2023.git)**
+**[Slides](https://nuwildcat.sharepoint.com/:p:/r/sites/NUIT-RCS/Shared%20Documents/data%20services/PUBLIC_SHARE/r_intro_20230710.pptx?d=w84727fc6e941471ebc5e99bc027db85f&csf=1&web=1&e=Z4w5tI)**
 
 [How to download these materials](https://sites.northwestern.edu/researchcomputing/resources/downloading-from-github/)
 
