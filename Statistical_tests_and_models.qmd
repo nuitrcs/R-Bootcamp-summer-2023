@@ -112,3 +112,7 @@ antibiotic <- read.csv("data/antibiotic.csv")
 
 t.test(antibiotic$before, antibiotic$after, paired=TRUE)
 ```
+
+## Checking the normality of a sample
+
+A lot of statistical tests assume
