@@ -9,7 +9,7 @@ This workshop builds on the [R Programming Concepts](https://github.com/nuitrcs/
 
 # Materials and Setup
 
-**[Slides](https://nuwildcat.sharepoint.com/:p:/r/sites/NUIT-RCS/Shared%20Documents/data%20services/PUBLIC_SHARE/r_intro_20230710.pptx?d=w84727fc6e941471ebc5e99bc027db85f&csf=1&web=1&e=Z4w5tI)**
+**[Slides](https://nuwildcat.sharepoint.com/:p:/s/NUIT-RCS/EcZ_coRB6R5HvF6ZvAJ9uF8B_jKlpQIcl_gb2fz1TtHSSg?e=Cyoi3c)**
 
 [How to download these materials](https://sites.northwestern.edu/researchcomputing/resources/downloading-from-github/)
 
