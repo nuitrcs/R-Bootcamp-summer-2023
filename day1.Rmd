@@ -1,5 +1,5 @@
 ---
-title: "Intro and Data Frame"
+title: "Intro and Data Frames"
 author: "Christina Maimone"
 date: "`r Sys.Date()`"
 output: html_document
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # This File
 
-This is an R Markdown file.  The code in the gray chunks surrounded by `````` is R code that you can run.  There's a green triangle you can click to run all of the code in a chunk, or put your cursor in a line and press Command+Enter (Mac) or Control+Enter (PC) to execute that command (which can span multiple lines).
+This is an R Markdown file.  The code in the gray chunks surrounded by ``` is R code that you can run.  There's a green triangle you can click to run all of the code in a chunk, or put your cursor in a line and press Command+Enter (Mac) or Control+Enter (PC) to execute that command (which can span multiple lines).
 
 We're using R Markdown instead of a R script so that we can include additional text and explanation in the file.  In an .R script, everything has to be an R command or comment.  Here, between chunks of R code, we can include text and other information.  
 
@@ -84,13 +84,16 @@ Most of the time, you'll read in data from a file.  For example:
 
 ```{r}
 evp <- read.csv("data/ev_police_jan.csv")
-evp
 ```
-
 
 Most data in R will be stored in a data frame (more below).
 
 As with other variables, when we type the name of the data frame, it will print the contents of the variable to the console.  
+
+```{r, eval=FALSE}
+evp
+```
+
 
 Note: Evanston police data comes from the [Stanford Open Policing Project](https://openpolicing.stanford.edu/data/).  This is a small subset of data: just January 2017.
 
