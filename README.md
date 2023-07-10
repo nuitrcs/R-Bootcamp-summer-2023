@@ -4,6 +4,7 @@
 * Day 2: Dates; strings; factors; ifelse; useful functions
 * Day 3: Statistics; visualization
 
+This workshop builds on the [R Programming Concepts](https://github.com/nuitrcs/programmingConceptsR) workshop.   
 
 
 # Materials and Setup
