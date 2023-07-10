@@ -933,3 +933,5 @@ Inspect some URLs in the dataset and notice which patterns are **always** pres
 ```{r}
 articles$url
 ```
+
+[Regex is hard, but useful!](https://global.discourse-cdn.com/business6/uploads/coda1/original/3X/7/2/72507cd4f9b289d55c379be4c64fca6484ec768b.jpeg)
