@@ -1,0 +1,187 @@
+---
+title: "Day 2"
+format: html
+editor: visual
+execute: 
+  eval: false
+toc: true
+toc-depth: 4
+---
+
+# Basic Statistics and Probability
+
+## Descriptive Statistics
+
+Any time that you get a new data set to look at, one of the first tasks that you have to do is find ways of summarizing the data in a compact, easily understood fashion. This is what ***descriptive statistics*** (as opposed to inferential statistics) is all about. In fact, to many people the term "statistics" is synonymous with descriptive statistics.
+
+### Measures of central tendency
+
+In most situations, the first thing that you'll want to calculate is a measure of ***central tendency***. That is, you'd like to know something about the "average" or "middle" of your data lies. The two most commonly used measures are the mean, median and mode; occasionally people will also report a trimmed mean. I'll explain each of these in turn, and then discuss when each of them is useful.
+
+```{r}
+air <- read.csv("data/airline_safety.csv")
+View(air)
+```
+
+R provides useful functions to calculate measures of central tendency:
+
+```{r}
+x <- air$incidents_00_14
+
+mean(x)
+median(x)
+```
+
+You could also calculate the trimmed mean that is useful to ignore extreme outliers:
+
+```{r}
+my_data <- c(2,3,4,5,6,7,8,9,10, -100)
+mean(my_data)
+mean(my_data, trim=0.10) # 10% trimmed mean
+```
+
+### Measures of variability
+
+The ***range*** of a variable is very simple: it's the biggest value minus the smallest value. The ***interquartile range*** (IQR) is like the range, but instead of calculating the difference between the biggest and smallest value, it calculates the difference between the 25th quantile and the 75th quantile. The 10th ***quantile (**or **percentile)*** of a data set is the smallest number x such that 10% of the data is less than x.
+
+```{r}
+x <- air$incidents_00_14
+
+range(x) # range
+IQR(x) # inter-quartile range
+quantile(x, probs=c(0.25, 0.75))
+```
+
+You could also decide to look at a frequency table instead:
+
+```{r}
+table(x)
+hist(x, breaks = -1:25)
+```
+
+Similarly, some commonly used measures for variability are:
+
+```{r}
+sd(x) # standard deviation
+var(x) # variance
+mad(x) # median absolute deviation
+```
+
+You can also get an overall summary as:
+
+```{r}
+summary(x)
+```
+
+### Correlation
+
+Calculating correlations in R can be done using the `cor()` command. The simplest way to use the command is to specify two input arguments `x` and `y`, each one corresponding to one of the variables.
+
+```{r}
+cor(air$avail_seat_km_per_week , air$incidents_00_14)
+```
+
+You can choose the correlation method from this vector `c("pearson", "kendall", "spearman")` :
+
+```{r}
+cor(air$avail_seat_km_per_week , air$incidents_00_14, method = "spearman")
+```
+
+NOTE: In all the above functions, you can handle missing values by setting `na.rm = TRUE` .
+
+However, the `cor()` function is a special case. It doesn't have an `na.rm` argument, because the story becomes a lot more complicated when more than one variable is involved. What it does have is an argument called `use` which does roughly the same thing, but you need to think little more carefully about what you want this time. Type `?cor` in the console and read through the `use` parameter options.
+
+### EXERCISE 1
+
+What can you say about the number of fatalities when comparing the time period 1985-1999 to the time period 2000-2014?
+
+### EXERCISE 2
+
+Is the number of fatal incidents correlated to the number of total incidents?
+
+### EXERCISE 3
+
+Does the method of calculating correlation change your inference in this case?
+
+## Probability Distributions
+
+Probability is a branch of mathematics that tells you how often different kinds of events will happen. The critical point is that probabilistic questions start with a known ***model*** of the world, and we use that model to do some calculations. The underlying model can be quite simple. For instance, in the coin flipping example, we can write down the model like this: $P(heads) =0.5$
+
+As you might imagine, probability distributions vary enormously, and there's an enormous range of distributions out there. However, they aren't all equally important. In fact, the vast majority of statistical tests rely on one of five distributions: binomial, normal, t, χ2 ("chi-square") and F.
+
+Frequently, you will want to simulate your experiments by drawing random variables from one of these distributions in order to test your hypotheses. For example, suppose you want to simulate the number of heads obtained on flipping a fair coin 10 times:
+
+```{r}
+rbinom(n=1,      # number of experiments
+       size=10,  # coin-flips per experiment
+       prob=0.5) # prob. of success
+```
+
+```{r}
+rbinom(n=10,     # number of experiments
+       size=10,  # coin-flips per experiment
+       prob=0.5) # prob. of success
+```
+
+```{r}
+rbinom(n=10,     # number of experiments
+       size=10,  # coin-flips per experiment
+       prob=0.7) # prob. of success
+```
+
+```{r}
+fair_model <- rbinom(n=30, size=10,  prob=0.5)
+unfair_model <- rbinom(n=30, size=10,  prob=0.7)
+
+mean(fair_model)
+mean(unfair_model)
+
+hist(fair_model)
+hist(unfair_model)
+```
+
+R actually provides *four* functions in relation to the binomial distribution. These four functions are `dbinom()`, `pbinom()`, `rbinom()` and `qbinom()`, and each one calculates a different quantity of interest. Not only that, R does the same thing for *every* probability distribution that it implements. No matter what distribution you're talking about, there's a `d` function, a `p` function, a `q` function and a `r` function.
+
+| What it does                | Prefix | Binomial distribution | Normal distribution |
+|-----------------------------|--------|-----------------------|---------------------|
+| probability (density) of    | d      | `dbinom()`            | `dnorm()`           |
+| cumulative probability of   | p      | `pbinom()`            | `pnorm()`           |
+| generate random number from | r      | `rbinom()`            | `rnorm()`           |
+| quantile function           | q      | `qbinom()`            | `qnorm()`           |
+
+Similarly, suppose you are simulating a normal distribution:
+
+```{r}
+# get a vector of 100 normally-distributed random variables
+my_sim <- rnorm(n=100, mean=0, sd=1)
+my_sim
+
+# plot the histogram of 10000 normally-distributed random variables
+my_sim <- rnorm(n=10000, mean=0, sd=1)
+hist(my_sim)
+```
+
+Next, let's consider the `qnorm()` function. Let's say I want to calculate the 95th and 99th percentile of the normal distribution:
+
+```{r}
+qnorm(p=c(0.95, 0.99), mean=0, sd=1)
+```
+
+What if I already have an observation, and I want to calculate the cumulative probability of this observation?
+
+The heights of adult men in the United States are approximately normally distributed with a mean of 70 inches and a standard deviation of 3 inches. What is the probability of observing an individual with a height less than or equal to 75 inches?
+
+```{r}
+observation_boundary <-  75
+pnorm(observation_boundary, mean=70, sd=3) # P( X <= 75)
+```
+
+The t distribution is a continuous distribution that looks very similar to a normal distribution, but has heavier tails. As you might expect, the relevant R functions are `dt()`, `pt()`, `qt()` and `rt()` . For the χ2 ("chi-square") distribution they are `dchisq()`, `pchisq()`, `qchisq()`, `rchisq()`, and for the F distribution they are `df()`, `pf()`, `qf()` and `rf()`.
+
+### EXERCISE 4
+
+A six-sigma observation is an observation that is 6 standard deviations away from the mean. What is the probability of observing a value greater than or equal to the six-sigma value for a normally distributed variable? Assume mean=0, sd=1.
+
+### EXERCISE 5
+
+Create 3 sets of normally distributed random variable vectors with 10,000 observations each. Now square each vector and add them together. Plot the histogram of this "sum of squares" vectors. Now create another vector of 10,000 random chi-square distributed values with 3 degrees of freedom, and plot this histogram. What do you notice?
