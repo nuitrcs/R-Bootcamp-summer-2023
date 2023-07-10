@@ -1,0 +1,118 @@
+---
+title: "Day 3"
+format: html
+editor: visual
+execute: 
+  eval: false
+toc: true
+toc-depth: 4
+---
+
+# Statistical tests and models
+
+## Categorical data analysis
+
+**Categorical data analysis** refers to a collection of tools that you can use when your data are nominal scale. However, there are a lot of different tools that can be used for categorical data analysis. We will cover some of the more common ones.
+
+### The χ2 goodness-of-fit test
+
+The χ2 (chi-squared) tests are most commonly used to test whether two categorical variables are independent. To use it, we must first construct a contingency table, i.e. a table showing the counts for different combinations of categories, typically using `table`. Here is an example with the `diamonds` data from `ggplot2`:
+
+```{r}
+library(ggplot2)
+table(diamonds$cut, diamonds$color)
+```
+
+The null hypothesis of our test is that the quality of the cut (`cut`) and the colour of the diamond (`color`) are independent, with the alternative being that they are dependent. We use `chisq.test` with the contingency table as input to run the χ2 test of independence:
+
+```{r}
+chisq.test(table(diamonds$cut, diamonds$color))
+```
+
+By default, `chisq.test` uses an asymptotic approximation of the p-value. For small sample sizes, it is almost often better to use permutation p-values by setting `simulate.p.value = TRUE` (but here the sample is not small, and so the computation of the permutation test will take a while):
+
+```{r}
+chisq.test(table(diamonds$cut, diamonds$color),
+           simulate.p.value = TRUE)
+```
+
+We can also use pipes to perform the test if we like:
+
+```{r}
+diamonds |> table(cut, color) |> chisq.test()
+```
+
+If both of the variables are binary, i.e. only take two values, the power of the test can be approximated using `power.prop.test`. Let's say that we have two variables, X and Y, taking the values 0 and 1. Assume that we collect n observations with X=0 and n with X=1. Furthermore, let `p1` be the probability that Y=1 if X=0 and `p2` be the probability that Y=1 if X=1. We can then use `power.prop.test` as follows:
+
+```{r}
+# Assume that n = 50, p1 = 0.4 and p2 = 0.5 and compute the power:
+power.prop.test(n = 50, p1 = 0.4, p2 = 0.5, sig.level = 0.05)
+
+# Assume that p1 = 0.4 and p2 = 0.5 and that we want 85 % power.
+# To compute the sample size required:
+power.prop.test(power = 0.85, p1 = 0.4, p2 = 0.5, sig.level = 0.05)
+```
+
+### The Fischer exact test
+
+What should you do if your sample sizes are too small, but you'd still like to test the null hypothesis that the two variables are independent? To illustrate the basic idea, let's suppose that we're analysing data from a field experiment, looking at the emotional status of people who have been accused of witchcraft; some of whom are currently being burned at the stake. Unfortunately for the scientist (but rather fortunately for the general populace), it's actually quite hard to find people in the process of being set on fire, so the cell counts are awfully small in some cases. The `salem_trial.csv` file illustrates the point:
+
+```{r}
+salem <- read.csv("data/salem_trial.csv")
+salem_table <- table(salem)
+salem_table
+```
+
+Let's see what happens when I run a chi-square test:
+
+```{r}
+chisq.test(salem_table)
+```
+
+This is where ***Fisher's exact test*** comes in very handy.
+
+```{r}
+fisher.test(salem_table)
+```
+
+This is a bit more output than we got from some of our earlier tests. The main thing we're interested in here is the p-value, which in this case is small enough (p=.036) to justify rejecting the null hypothesis that people on fire are just as happy as people not on fire.
+
+## Comparing means of continuous values
+
+The standard answer to the problem of comparing means is to use a t-test, of which there are several varieties depending on exactly what question you want to solve.
+
+Say you want to test if the mean of your data is significantly different from a hypothesised mean:
+
+```{r}
+library(palmerpenguins)
+
+t.test(penguins$body_mass_g, mu=4000) # one sample t-test
+```
+
+Similarly, to compare the means of two different samples:
+
+```{r}
+t.test(penguins$body_mass_g[penguins$sex == "male"],
+       penguins$body_mass_g[penguins$sex == "female"])
+```
+
+It drops rows/observations with missing values.
+
+If we have a variable that splits our data into two groups, we can use the formula syntax here `variable ~ groups`.
+
+```{r}
+# same as above
+t.test(formula = body_mass_g ~ sex, data=penguins)
+```
+
+Finally, we come to the paired samples t-test. Supposing you want to test the efficacy of an antibiotic drug by comparing the levels of bacteria before and after drug administration:
+
+```{r}
+antibiotic <- read.csv("data/antibiotic.csv")
+
+t.test(antibiotic$before, antibiotic$after, paired=TRUE)
+```
+
+## Checking the normality of a sample
+
+A lot of statistical tests assume
