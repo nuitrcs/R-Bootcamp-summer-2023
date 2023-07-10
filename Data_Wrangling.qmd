@@ -221,7 +221,7 @@ vector_1 <- c(9, 8, 7)               # Create example vector
 rbind(data_1, vector_1)              # rbind vector to data frame
 ```
 
-The rbind command can also be applied to two data frames. Let\'s create a second data frame and row bind it to data_1 (the data frame that we created above):
+The rbind command can also be applied to two data frames. Let's create a second data frame and row bind it to data_1 (the data frame that we created above):
 
 ```{r}
 x1 <- c(7, 1)                        # Column 1 of data frame 2
@@ -298,8 +298,7 @@ You can get help with the `?` function:
 ?read.csv
 ```
 
-Many times we just need to see some examples rather than read the entire documentation of a function or command. In this situation we would use the `example()` function. Consider below where we might be interested in some perspective plots. When you enter this into RStudio you will see some of the beautiful
-graphics that R can do:
+Many times we just need to see some examples rather than read the entire documentation of a function or command. In this situation we would use the `example()` function. Consider below where we might be interested in some perspective plots. When you enter this into RStudio you will see some of the beautiful graphics that R can do:
 
 ```{r}
 example(persp)
@@ -703,15 +702,15 @@ str_split("John Oliver is a person who exists", pattern=" ")
 str_split_fixed("John Oliver is a person who exists", pattern=" ", n = 3)
 ```
 
-### EXERCISE 
+### EXERCISE
 
 Load the `evp` dataset, and find all the rows where the reason for stop is a moving violation of any type
 
-### EXERCISE 
+### EXERCISE
 
 Convert the department name from all capitals to title case
 
-### EXERCISE 
+### EXERCISE
 
 Clean the location column, which should be a five letter zip code, such that values like "9121" are corrected to "09121"
 
@@ -733,13 +732,13 @@ str_extract_all('Eat. Pray. Love.', '\\.')
 
 Hence, the backslash helps **neglect a special meaning** of some symbols in R regular expressions and interpret them literally. It also has the opposite mission: to **give a special meaning** to some characters that otherwise would be interpreted literally. Below is a table of the most used character escape sequences:
 
-| R regex | What matches      |
-|---------|-------------------|
-| \b      | word boundary     |
-| \B      | non-word boundary |
-| \n      | new line          |
-| \t      | tab               |
-| \v      | vertical tab      |
+| R regex                 | What matches      |
+|-------------------------|-------------------|
+| \b      | word boundary |                   |
+| \B                      | non-word boundary |
+| \n                      | new line          |
+| \t      | tab           |                   |
+| \v      | vertical tab  |                   |
 
 Let's see how this works with `str_view_all()`. This function is used to print the underlying representation of a string and to see how a pattern matches.
 
@@ -756,14 +755,14 @@ str_view_all('Unicorns are\nso cute!', '\\n')
 
 A character class matches any character of a predefined set of characters. Built-in character classes have the same syntax as the character escape sequences we saw in the previous section: a backslash followed by a letter to which it gives a special meaning rather than its literal one. The most popular of these constructions are given below:
 
-| R regex | What matches                                      |
-|---------|---------------------------------------------------|
-| \w      | word character (any letter, digit, or underscore) |
-| \W      | non-word character                                |
-| \d      | digit                                             |
-| \D      | non-digit                                         |
-| \s      | space character (space, tab, newline, etc)        |
-| \S      | non-space character                               |
+| R regex         | What matches                                      |
+|-----------------|---------------------------------------------------|
+| \w              | word character (any letter, digit, or underscore) |
+| \W              | non-word character                                |
+| \d      | digit |                                                   |
+| \D              | non-digit                                         |
+| \s              | space character (space, tab, newline, etc)        |
+| \S              | non-space character                               |
 
 Let's take a look at some self-explanatory examples:
 

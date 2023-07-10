@@ -109,7 +109,24 @@ Probability is a branch of mathematics that tells you how often different kinds 
 
 As you might imagine, probability distributions vary enormously, and there's an enormous range of distributions out there. However, they aren't all equally important. In fact, the vast majority of statistical tests rely on one of five distributions: binomial, normal, t, χ2 ("chi-square") and F.
 
-Frequently, you will want to simulate your experiments by drawing random variables from one of these distributions in order to test your hypotheses. For example, suppose you want to simulate the number of heads obtained on flipping a fair coin 10 times:
+Frequently, you will want to simulate your experiments by drawing random variables from one of these distributions in order to test your hypotheses. For example, suppose you want to draw a random variable from a normal distribution with mean = 0 and sd = 1:
+
+```{r}
+rnorm(n = 1, mean = 0, sd = 1)
+```
+
+The value that you will randomly get will differ from the one I get. To make them the same, you can set the seed for the random number generator. This is frequently useful for example when running stochastic optimizations or models and you want the exact same "random" values to show up every time you run the simulation.
+
+```{r}
+set.seed(42)
+```
+
+```{r}
+# We can use the clock of the computer to set the seed to a random seed every time
+set.seed(Sys.time())
+```
+
+For example, suppose you want to simulate the number of heads obtained on flipping a fair coin 10 times. We know that the outcome of each flip is binary - therefore you choose the binomial distribution. You want to flip a fair coin 10 times, and record the total number of heads obtained (can range from 0-10). You can set up your simulation experiment as follows:
 
 ```{r}
 rbinom(n=1,      # number of experiments
@@ -117,11 +134,15 @@ rbinom(n=1,      # number of experiments
        prob=0.5) # prob. of success
 ```
 
+And since you believe in reproducible results, you want to repeat this simulation experiment 30 times:
+
 ```{r}
-rbinom(n=10,     # number of experiments
+rbinom(n=30,     # number of experiments
        size=10,  # coin-flips per experiment
        prob=0.5) # prob. of success
 ```
+
+What if now you were to simulate an unfair coin?
 
 ```{r}
 rbinom(n=10,     # number of experiments
@@ -143,7 +164,7 @@ hist(unfair_model)
 R actually provides *four* functions in relation to the binomial distribution. These four functions are `dbinom()`, `pbinom()`, `rbinom()` and `qbinom()`, and each one calculates a different quantity of interest. Not only that, R does the same thing for *every* probability distribution that it implements. No matter what distribution you're talking about, there's a `d` function, a `p` function, a `q` function and a `r` function.
 
 | What it does                       | Prefix | Binomial distribution | Normal distribution |
-|---------------------------------|----------------|------------------|----------------|
+|-----------------------|-----------------|-----------------|-----------------|
 | get the probability (density) of   | d      | `dbinom()`            | `dnorm()`           |
 | find the cumulative probability of | p      | `pbinom()`            | `pnorm()`           |
 | generate random number from        | r      | `rbinom()`            | `rnorm()`           |
@@ -155,13 +176,14 @@ Similarly, suppose you are simulating a normal distribution:
 # get a vector of 100 normally-distributed random variables
 my_sim <- rnorm(n=100, mean=0, sd=1)
 my_sim
+hist(my_sim)
 
 # plot the histogram of 10000 normally-distributed random variables
 my_sim <- rnorm(n=10000, mean=0, sd=1)
 hist(my_sim)
 ```
 
-Next, let's consider the `qnorm()` function. Let's say I want to calculate the value at the 95th percentile of the normal distribution:
+Next, let's consider the `qnorm()` function. Let's say I want to calculate the value of my distribution at the 95th percentile of the normal distribution:
 
 ```{r}
 qnorm(p=0.95, mean=0, sd=1)
@@ -205,7 +227,25 @@ plot(x, dt(x, df=2), type = 'l')
 
 ### EXERCISE
 
-Using the vector `x` above, plot the probability density function for the t-distribution with different degrees of freedom: 1, 2, 10, and100. What do you notice? Compare the t-distribution with df=10000 to the Normal distribution.
+The distribution of ACT scores for high school students in the U.S. is normally distributed with a mean of 21 and a standard deviation of about 5. What is the score of a student at the 99th percentile?
+
+```{r}
+
+```
+
+### EXERCISE
+
+The distribution of diastolic blood pressure is normally distributed with a mean of about 80 and a
+standard deviation of 20. If your blood pressure is 72, what percentage of the population has a blood pressure *greater* than yours?
+
+### EXERCISE
+
+Using the vector `x` plot the probability density function for the t-distribution with different degrees of freedom: 1, 2, 10, and100. What do you notice? Compare the t-distribution with df=10000 to the Normal distribution.
+
+```{r}
+x <- seq(-4, 4, 0.01)
+
+```
 
 ### EXERCISE
 
@@ -218,3 +258,16 @@ A six-sigma observation is an observation that is 6 standard deviations away fro
 ### EXERCISE
 
 Create 3 sets of normally distributed random variable vectors with 10,000 observations each. Now square each vector and add them together. Plot the histogram of this "sum of squares" vectors. Now create another vector of 10,000 random chi-square distributed values with 3 degrees of freedom, and plot this histogram. What do you notice?
+
+```{r}
+random_set1 <- 
+random_set2 <- 
+random_set3 <-   
+  
+sum_of_sqaures <- sum(random_set1, random_set2, random_set3)
+
+random_chisq <- 
+  
+hist()
+hist()
+```
