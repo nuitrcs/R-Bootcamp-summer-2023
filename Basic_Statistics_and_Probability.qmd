@@ -91,15 +91,15 @@ NOTE: In all the above functions, you can handle missing values by setting `na.r
 
 However, the `cor()` function is a special case. It doesn't have an `na.rm` argument, because the story becomes a lot more complicated when more than one variable is involved. What it does have is an argument called `use` which does roughly the same thing, but you need to think little more carefully about what you want this time. Type `?cor` in the console and read through the `use` parameter options.
 
-### EXERCISE 1
+### EXERCISE
 
 What can you say about the number of fatalities when comparing the time period 1985-1999 to the time period 2000-2014?
 
-### EXERCISE 2
+### EXERCISE
 
 Is the number of fatal incidents correlated to the number of total incidents?
 
-### EXERCISE 3
+### EXERCISE
 
 Does the method of calculating correlation change your inference in this case?
 
@@ -142,12 +142,12 @@ hist(unfair_model)
 
 R actually provides *four* functions in relation to the binomial distribution. These four functions are `dbinom()`, `pbinom()`, `rbinom()` and `qbinom()`, and each one calculates a different quantity of interest. Not only that, R does the same thing for *every* probability distribution that it implements. No matter what distribution you're talking about, there's a `d` function, a `p` function, a `q` function and a `r` function.
 
-| What it does                | Prefix | Binomial distribution | Normal distribution |
-|-----------------------------|--------|-----------------------|---------------------|
-| probability (density) of    | d      | `dbinom()`            | `dnorm()`           |
-| cumulative probability of   | p      | `pbinom()`            | `pnorm()`           |
-| generate random number from | r      | `rbinom()`            | `rnorm()`           |
-| quantile function           | q      | `qbinom()`            | `qnorm()`           |
+| What it does                       | Prefix | Binomial distribution | Normal distribution |
+|---------------------------------|----------------|------------------|----------------|
+| get the probability (density) of   | d      | `dbinom()`            | `dnorm()`           |
+| find the cumulative probability of | p      | `pbinom()`            | `pnorm()`           |
+| generate random number from        | r      | `rbinom()`            | `rnorm()`           |
+| value at given quantile/percentile | q      | `qbinom()`            | `qnorm()`           |
 
 Similarly, suppose you are simulating a normal distribution:
 
@@ -161,13 +161,17 @@ my_sim <- rnorm(n=10000, mean=0, sd=1)
 hist(my_sim)
 ```
 
-Next, let's consider the `qnorm()` function. Let's say I want to calculate the 95th and 99th percentile of the normal distribution:
+Next, let's consider the `qnorm()` function. Let's say I want to calculate the value at the 95th percentile of the normal distribution:
 
 ```{r}
-qnorm(p=c(0.95, 0.99), mean=0, sd=1)
+qnorm(p=0.95, mean=0, sd=1)
+
+# you can also put in a vector of multiple values to check
+percentile_values_to_check <- c(0.50, 0.67, 0.95, 0.99)
+qnorm(percentile_values_to_check, mean=0, sd=1)
 ```
 
-What if I already have an observation, and I want to calculate the cumulative probability of this observation?
+What if I already have an observation, and I want to calculate the cumulative probability of this observation? I would use `pnorm()`.
 
 The heights of adult men in the United States are approximately normally distributed with a mean of 70 inches and a standard deviation of 3 inches. What is the probability of observing an individual with a height less than or equal to 75 inches?
 
@@ -176,12 +180,41 @@ observation_boundary <-  75
 pnorm(observation_boundary, mean=70, sd=3) # P( X <= 75)
 ```
 
+The probability density function (eg `dnorm()`) as the name suggests can be used to plot the probability density for example:
+
+```{r}
+# create a vector of evenly spaced elements from -4 to 4
+x <- seq(-4, 4, 0.01)
+
+# plot the probability density for the Normal distribution
+plot(x, dnorm(x), type = 'l')
+lines(x, dnorm(x, mean=1), type = 'l', col="red")
+lines(x, dnorm(x, mean=2), type = 'l', col="blue")
+
+# change the SD
+plot(x, dnorm(x), type = 'l')
+lines(x, dnorm(x, sd=1.5), type = 'l', col="red")
+lines(x, dnorm(x, sd=2), type = 'l', col="blue")
+```
+
 The t distribution is a continuous distribution that looks very similar to a normal distribution, but has heavier tails. As you might expect, the relevant R functions are `dt()`, `pt()`, `qt()` and `rt()` . For the χ2 ("chi-square") distribution they are `dchisq()`, `pchisq()`, `qchisq()`, `rchisq()`, and for the F distribution they are `df()`, `pf()`, `qf()` and `rf()`.
 
-### EXERCISE 4
+```{r}
+plot(x, dt(x, df=2), type = 'l')
+```
+
+### EXERCISE
+
+Using the vector `x` above, plot the probability density function for the t-distribution with different degrees of freedom: 1, 2, 10, and100. What do you notice? Compare the t-distribution with df=10000 to the Normal distribution.
+
+### EXERCISE
+
+The F distribution comes up when you perform an ANOVA. Plot the probability density function for the F-distribution with degrees of freedom 1,1 or 100,100 . What do you notice?
+
+### EXERCISE
 
 A six-sigma observation is an observation that is 6 standard deviations away from the mean. What is the probability of observing a value greater than or equal to the six-sigma value for a normally distributed variable? Assume mean=0, sd=1.
 
-### EXERCISE 5
+### EXERCISE
 
 Create 3 sets of normally distributed random variable vectors with 10,000 observations each. Now square each vector and add them together. Plot the histogram of this "sum of squares" vectors. Now create another vector of 10,000 random chi-square distributed values with 3 degrees of freedom, and plot this histogram. What do you notice?
