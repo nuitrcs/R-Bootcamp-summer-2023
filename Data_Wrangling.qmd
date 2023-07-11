@@ -32,9 +32,22 @@ where the test condition is usually some comparison or operation on a vector - a
 x <- c(-1, 2, 3, -5, 3, NA, -4, 6)
 x >= 0
 
-ifelse(x >= 0, x, 0)  # replace negative values with 0, leave others alone
+ifelse(x >= 0, x, 0)  # keep positive (>= 0) values as they are, replace others with 0
 
 ifelse(is.na(x), 0, x)  # replace missing values with 0, leave others alone
+
+ifelse(x %% 2 == 0, "even", "odd")  ## remainder of dividing x by 2 is 0 
+```
+
+`ifelse()` looks at each value in the initial TRUE/FALSE vector, and it decides what the value at each position should then be.
+
+%% is an operator that returns the value left after dividing by an integer -- the remainder
+
+```{r}
+4 %% 2
+7 %% 2
+
+x %% 2
 
 ifelse(x %% 2 == 0, "even", "odd")  ## remainder of dividing x by 2 is 0 
 ```
@@ -62,6 +75,8 @@ y <- c(4, -1, 3, 6, -7, 10, 20)
 
 Recode the vector below such that values at or above the average are replaced with "tall" and values below average are replaced with "short"
 
+Remember: break this into parts. Start with computing the mean of x, then use that in an expression to determine which values of x are above that mean
+
 ```{r}
 y <- c(4, 6, 5, 7, 3, 6, 4, 5, 3, 6, 6, 5, 6, 7, 6, 4, 6, 5, 7, 5)
 ```
@@ -80,6 +95,25 @@ x == 1 | x == 2 | x == 3
 state.name  # built-in vector in R
 
 ifelse(state.name %in% c("Alaska", "Hawaii"), NA, state.name)
+```
+
+Let's use it with some data:
+
+```{r}
+evp <- read.csv("data/ev_police_jan.csv")
+```
+
+We could use it to subset data - get the rows where the location is an Evanston zip code
+
+```{r}
+evp[evp$location %in% c(60201, 60202), ]
+```
+
+Or make a variable called evanston if the location is one of the two main Evanston zip codes of 60201 or 60202
+
+```{r}
+evp$evanston <- evp$location %in% c(60201, 60202)
+table(evp$evanston)
 ```
 
 ### EXERCISE
@@ -120,6 +154,8 @@ paste0("John", "Oliver")
 If you provide a vector of characters, you can also use the `collapse` argument, which places whatever you provide for `collapse` between the characters of the vector:
 
 ```{r}
+state.name[1:5] # built-n vector state.name, using the first 5 values
+
 paste0(state.name[1:5], collapse = ", and ")
 paste0(state.name[1:5], sep = ", and ") # will not work as intended
 ```
@@ -197,86 +233,91 @@ x <- c(6, 6, 4, 3, 9, 4, 7, 5, 1, 6)
 
 ### rbind and cbind
 
-If you want to have multiple vectors combined together to create a 2-dimensional space with rows and columns, we can use the rbind() and cbind() functions. This new object is called a **matrix**. `rbind()` stands for *row bind* and `cbind()` stands for *column bind*.
+`rbind()` stands for *row bind* and `cbind()` stands for *column bind*. These functions are useful to add rows or columns to existing data frames, or to bind two data frames together in a row-wise or column-wise fashion.
+
+Say we have two dataframes:
 
 ```{r}
-matrix.r <- rbind(c(1, 2, 3, 4), c(5, 6, 7, 8), c(9, 10, 11, 12), c(13, 14, 15, 16))
-matrix.r
-matrix.c <- cbind(c(1, 2, 3, 4), c(5, 6, 7, 8), c(9, 10, 11, 12), c(13, 14, 15, 16))
-matrix.c
+#creating the first data frame 
+df1 <- data.frame(Student_class=c("High school","College","College","High school","College", "College"),
+                Student_name = c("Mark","John","Jessica","Floyd","Susan", "Shannon"))
+
+# creating the second dataframe
+df2 <- data.frame(Student_class = c("High school","College"),
+                  Student_name = c("Bracy","Evin"))
+
+df2
 ```
 
-When using rbind(), the vectors are stacked **on top** of each other and made into rows in the matrix. When using cbind(), the vectors are stacked **next** to each other and made into columns in the matrix. Both of these functions are useful and which one you will need to use will depend on your individual situation.
-
-You can bind a vector to a data frame:
+Now we have 2 data frames of different row counts (df1 and df2). Let\'s use the `rbind()` function to bind the above 2 data frames into a single data frame.
 
 ```{r}
-x1 <- c(7, 4, 4, 9)                  # Column 1 of data frame
-x2 <- c(5, 2, 8, 9)                  # Column 2 of data frame
-x3 <- c(1, 2, 3, 4)                  # Column 3 of data frame
-data_1 <- data.frame(x1, x2, x3)     # Create example data frame
-
-vector_1 <- c(9, 8, 7)               # Create example vector
-
-rbind(data_1, vector_1)              # rbind vector to data frame
+rbind(df1,df2) #binds rows of 2 input data frames
 ```
 
-The rbind command can also be applied to two data frames. Let's create a second data frame and row bind it to data_1 (the data frame that we created above):
+When using rbind(), the vectors are stacked **on top** of each other. The number of columns should be identical for row-stacking to work.
+
+Similarly, if we have two data frames that we would like to stack **next** to each other, we can use the `cbind()` function:
 
 ```{r}
-x1 <- c(7, 1)                        # Column 1 of data frame 2
-x2 <- c(4, 1)                        # Column 2 of data frame 2
-x3 <- c(4, 3)                        # Column 3 of data frame 2
-data_2 <- data.frame(x1, x2, x3)     # Create second data frame
+# data frame 1
+df1 <- data.frame(major = c('A','B','C','D','E','F'),
+                  age = c(22,25,28,19,15,23))
+df1
 
-rbind(data_1, data_2)                # rbind two data frames in R
-```
+# data frame 2
+df2 <- data.frame(gender = c('Male','Male','Female','Male','Female','Female'))
+df2
 
-`cbind()` performs a similar function except it operates to bind columns together:
-
-```{r}
-#create two vectors
-a <- c(1, 3, 3, 4, 5)
-b <- c(7, 7, 8, 3, 2)
-
-#cbind the two vectors into a matrix
-new_matrix <- cbind(a, b)
-new_matrix
+# bind these 2 data frames together
+final_data <- cbind(df1,df2)
+final_data
 ```
 
 ### EXERCISE
 
-Add a new column `d` (fill it with the values of your choice) to the data frame `df`. What is the shape of the resulting data frame?
+Add the information in the data frame `more_info` to `final data` from above. Hint: look at the dimensions and the information contained in the data frames to decide which binding function to use.
 
 ```{r}
-df <- data.frame(a=c(1, 3, 3, 4, 5),
-                 b=c(7, 7, 8, 3, 2),
-                 c=c(3, 3, 6, 6, 8))
+more_info <- data.frame(name=c("Mark","John","Jessica","Floyd","Susan", "Shannon"),
+                        home_state = c("MA", "IL", "AZ", "TX", "CA", "NJ"))
 
 
 ```
 
 ### Piping with `|>`
 
-Pipes are a powerful tool for clearly expressing a sequence of multiple operations. You will learn more about them in the Tidyverse workshop, however R 4.1.0 introduced a native pipe operator `|>`. By default, the pipe passes the object on its left-hand side to the first argument of the function on the right-hand side. (Note - the Tidyverse pipe `%>%` allows you to change the placement with a `.` )
+Pipes are a powerful tool for clearly expressing a sequence of multiple operations. You will learn more about them in the Tidyverse workshop, however R 4.1.0 introduced a native pipe operator `|>`. By default, the pipe passes the object on its left-hand side to the first argument of the function on the right-hand side.
 
 ```{r}
-mtcars |> names()
+evp <- read.csv("data/ev_police_jan.csv")
 ```
 
 ```{r}
-mtcars |> plot(hp, mpg)
+evp |> names()
+
+# equivalent to
+names(evp)
+```
+
+```{r}
+evp |> dim()
 ```
 
 You can chain multiple operations together with pipes
 
 ```{r}
-mtcars |> subset("mpg" > 10) |> subset("hp" > 100)
+evp$location |> table() |> sort()
 ```
 
 ### EXERCISE
 
-Load `airline_safety.csv` into your workspace and find the airlines which had more than 5 incidents between 1985-1999 as well as 2000-2014. Use chained pipe operations to accomplish this.
+Rewrite these commands using the `|>` operator instead of nested function calls:
+
+```         
+unique(evp$vehicle_make)
+sort(unique(evp$vehicle_make))
+```
 
 ```{r}
 
@@ -374,8 +415,6 @@ as.logical("Vaccines cause autism") # Should be FALSE
 
 -   The functions `is.logical`, `is.numeric` and `is.character` can be used to check if a variable is a `logical`, `numeric` or `character`, respectively. What type of object do they return?
 
--   Is `NA` a `logical`, `numeric` or `character`?
-
 ```{r}
 
 ```
@@ -447,8 +486,11 @@ The data we have is just for January, which means there are more instances of so
 
 ```{r}
 seq.Date(ymd("2017-01-01"), ymd("2017-01-31"), 1)  # days in January 2017
+
 wday(seq.Date(ymd("2017-01-01"), ymd("2017-01-31"), 1), label=TRUE)  ## as days of the week
+
 table(wday(seq.Date(ymd("2017-01-01"), ymd("2017-01-31"), 1), label=TRUE))  # tallied
+
 table(wday(evp$Date, label=TRUE)) / table(wday(seq.Date(ymd("2017-01-01"), ymd("2017-01-31"), 1), label=TRUE)) # together
 ```
 
@@ -569,10 +611,9 @@ directions <- c("east", "west", "east", "south", "north", "north", "west", "nort
 
 ### EXERCISE
 
-Load the `evp` dataset, and convert the column `subject_race` into an ordered variable from most frequent to least frequent
+Using the `evp` dataset, and convert the columns `subject_race` and `subject_sex` into factors.
 
 ```{r}
-evp <- read.csv("data/ev_police.csv")
 
 ```
 
@@ -718,7 +759,7 @@ str_split_fixed("John Oliver is a person who exists", pattern=" ", n = 3)
 
 ### EXERCISE
 
-Load the `evp` dataset, and find all the rows where the reason for stop is a moving violation of any type
+Load the `evp` dataset, and find all the rows where the reason for stop (reason_for_stop) is a moving violation of any type
 
 ```{r}
 
@@ -758,13 +799,13 @@ str_extract_all('Eat. Pray. Love.', '\\.')
 
 Hence, the backslash helps **neglect a special meaning** of some symbols in R regular expressions and interpret them literally. It also has the opposite mission: to **give a special meaning** to some characters that otherwise would be interpreted literally. Below is a table of the most used character escape sequences:
 
-| R regex  | What matches      |
-|----------|-------------------|
-| \b       | word boundary     |
-| \B       | non-word boundary |
-| \n       | new line          |
-| \t       | tab               |
-| \v       | vertical tab      |
+| R regex | What matches      |
+|---------|-------------------|
+| \b      | word boundary     |
+| \B      | non-word boundary |
+| \n      | new line          |
+| \t      | tab               |
+| \v      | vertical tab      |
 
 Let's see how this works with `str_view_all()`. This function is used to print the underlying representation of a string and to see how a pattern matches.
 
@@ -781,14 +822,14 @@ str_view_all('Unicorns are\nso cute!', '\\n')
 
 A character class matches any character of a predefined set of characters. Built-in character classes have the same syntax as the character escape sequences we saw in the previous section: a backslash followed by a letter to which it gives a special meaning rather than its literal one. The most popular of these constructions are given below:
 
-| R regex  | What matches                                      |
-|----------|---------------------------------------------------|
-| \w       | word character (any letter, digit, or underscore) |
-| \W       | non-word character                                |
-| \d       | digit                                             |
-| \D       | non-digit                                         |
-| \s       | space character (space, tab, newline, etc)        |
-| \S       | non-space character                               |
+| R regex | What matches                                      |
+|---------|---------------------------------------------------|
+| \w      | word character (any letter, digit, or underscore) |
+| \W      | non-word character                                |
+| \d      | digit                                             |
+| \D      | non-digit                                         |
+| \s      | space character (space, tab, newline, etc)        |
+| \S      | non-space character                               |
 
 Let's take a look at some self-explanatory examples:
 
