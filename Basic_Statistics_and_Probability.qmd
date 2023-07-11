@@ -142,10 +142,10 @@ rbinom(n=1,      # number of experiments
        prob=0.5) # prob. of success
 ```
 
-And since you believe in reproducible results, you want to repeat this simulation experiment 30 times:
+And since you believe in reproducible results, you want to repeat this simulation experiment 10 times:
 
 ```{r}
-rbinom(n=30,     # number of experiments
+rbinom(n=10,     # number of experiments
        size=10,  # coin-flips per experiment
        prob=0.5) # prob. of success
 ```
@@ -174,7 +174,7 @@ hist(unfair_model)
 R actually provides *four* functions in relation to the binomial distribution. These four functions are `dbinom()`, `pbinom()`, `rbinom()` and `qbinom()`, and each one calculates a different quantity of interest. Not only that, R does the same thing for *every* probability distribution that it implements. No matter what distribution you're talking about, there's a `d` function, a `p` function, a `q` function and a `r` function.
 
 | What it does                       | Prefix | Binomial distribution | Normal distribution |
-|------------------------------------|--------|-----------------------|---------------------|
+|--------------------|------------------|------------------|------------------|
 | get the probability (density) of   | d      | `dbinom()`            | `dnorm()`           |
 | find the cumulative probability of | p      | `pbinom()`            | `pnorm()`           |
 | generate random number from        | r      | `rbinom()`            | `rnorm()`           |
