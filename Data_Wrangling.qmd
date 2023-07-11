@@ -12,6 +12,52 @@ toc-depth: 4
 
 ... or put differently, welcome to the real world. Real datasets are seldom as tidy and clean as those you have been working with so far. Real data is messy and often you'll need to clean and coerce it into the right format in order to actually analyze it. This session contains a number of examples that serve as cookbook recipes for common data wrangling tasks.
 
+## Using the R Help
+
+One of the most important features that you will need as you start on your path to becoming and R user is getting help. No matter how skilled of a programmer you are, you always encounter new functions and need help understanding how to use them. We will take some time to explore the help features in R.
+
+To get online help within an R session we use the `help()` function. This will allow us to see the documentation on a function that we are interested in.
+
+Let's say we want to import a csv file and we know we need to use the `read.csv` function:
+
+```{r}
+help(read.csv)
+```
+
+You can get help with the `?` function:
+
+```{r}
+?read.csv
+```
+
+Many times we just need to see some examples rather than read the entire documentation of a function or command. In this situation we would use the `example()` function. Consider below where we might be interested in some perspective plots. When you enter this into RStudio you will see some of the beautiful graphics that R can do:
+
+```{r}
+example(persp)
+```
+
+The Run Examples hyperlink at the bottom of the function documentation is generally the quickest way to understand different use cases.
+
+Aside from these areas of help another method is to search the internet for further help. Here are some other resources:
+
+-   [The Comprehensive R Archive Network](https://cran.r-project.org/)
+
+-   [UCLA Statistical Computing Help Site](http://www.ats.ucla.edu/stat/r/)
+
+-   [Google Search Site](http://statseducation.com/Introduction-to-R/modules/getting%20started/help/www.google.com)
+
+-   [Github](http://statseducation.com/Introduction-to-R/modules/getting%20started/help/www.github.com)
+
+-   [StackExchange](http://stackexchange.com/)
+
+### EXERCISE
+
+Look up the documentation for `lm` . What does this function do? Can you run some examples of this function? What inputs does it take? What outputs does it return?
+
+```{r}
+
+```
+
 ## Useful functions
 
 This section will list several basic R functions that are very useful and should be part of your toolbox.
@@ -59,6 +105,9 @@ library(tidyr)
 library(dplyr)
 
 replace_na(x, 0) # replace NA with 0
+
+y <- c("abc", "def", "", "ghi") # remove an empty string
+na_if(y, "")
 
 na_if(1:5, 5:1) # when x == y, replace the value in x with NA
 ```
@@ -109,7 +158,7 @@ We could use it to subset data - get the rows where the location is an Evanston 
 evp[evp$location %in% c(60201, 60202), ]
 ```
 
-Or make a variable called evanston if the location is one of the two main Evanston zip codes of 60201 or 60202
+Or make a new column called `evanston` if the location is one of the two main Evanston zip codes of 60201 or 60202
 
 ```{r}
 evp$evanston <- evp$location %in% c(60201, 60202)
@@ -122,6 +171,7 @@ Select the rows from the `evp` data below where the vehicle make is one of FIAT,
 
 ```{r}
 evp <- read.csv("data/ev_police_jan.csv")
+View(evp)
 
 ```
 
@@ -149,6 +199,15 @@ There's a shortcut for this:
 
 ```{r}
 paste0("John", "Oliver")
+```
+
+You can also paste the elements of two or more vectors together:
+
+```{r}
+first_names <- c("John", "Kate", "Tyler", "Jordan")
+last_names <- c("Lee", "Sharma", "Smith", "Rodriguez")
+
+paste(first_names, last_names, sep=" ")
 ```
 
 If you provide a vector of characters, you can also use the `collapse` argument, which places whatever you provide for `collapse` between the characters of the vector:
@@ -190,7 +249,7 @@ seq(0, 10, length.out=4)
 seq(0, 1, .1)
 ```
 
-`seq_along()` behaves similarly, but returns the length of the object passed to it.
+`seq_along()` behaves similarly, but returns a sequence starting from 1 to the length of the object passed to it.
 
 ```{r}
 seq_along(c(-1, 3, 56, -90))
@@ -249,7 +308,7 @@ df2 <- data.frame(Student_class = c("High school","College"),
 df2
 ```
 
-Now we have 2 data frames of different row counts (df1 and df2). Let\'s use the `rbind()` function to bind the above 2 data frames into a single data frame.
+Now we have 2 data frames of different row counts (df1 and df2). Let's use the `rbind()` function to bind the above 2 data frames into a single data frame.
 
 ```{r}
 rbind(df1,df2) #binds rows of 2 input data frames
@@ -282,6 +341,78 @@ Add the information in the data frame `more_info` to `final data` from above. Hi
 more_info <- data.frame(name=c("Mark","John","Jessica","Floyd","Susan", "Shannon"),
                         home_state = c("MA", "IL", "AZ", "TX", "CA", "NJ"))
 
+
+```
+
+### Loops with for
+
+A for-loop is one of the main control-flow constructs of the R programming language. It is used to iterate over a collection of objects, such as a vector, a list, a matrix, or a dataframe, and apply the same set of operations on each item of a given data structure. We use for-loops to keep our code clean and avoid unnecessary repetition of a code block.
+
+The basic syntax of a for-loop in R is the following:
+
+```         
+for (variable in sequence) {
+    expression
+}
+```
+
+```{r}
+for (i in 1:10) {
+  print(i)
+}
+```
+
+Something important to keep in mind, operations inside the loop are not automatically printed to the console.
+
+```{r}
+for (i in 1:10) {
+  i # executes without printing to console
+}
+i # value still changes
+```
+
+```{r}
+for (month in month.name) {
+  print(month)
+}
+```
+
+```{r}
+for (month in month.name) {
+  print(paste(month, "2023", sep=" "))
+}
+```
+
+You can also combine for loops with conditional statements:
+
+```{r}
+for (i in 1:5) {
+  if(i%%2==0) print(i)
+}
+```
+
+```{r}
+for (i in 1:5) {
+  if(i%%2==0) print(i) else print("indivisble")
+}
+```
+
+### EXERCISE
+
+Write a for loop that iterates over the list below and prints "I can pet it!" if the element is not `NA` .
+
+Hint: look up the `is.na` function with R help.
+
+```{r}
+animals <- c("cat", "dog", NA, "panda", "koala", "rabbit")
+
+```
+
+### EXERCISE
+
+Now modify your loop above to print "Animal: I can pet it!" (eg: "cat: I can pet it!")
+
+```{r}
 
 ```
 
@@ -318,52 +449,6 @@ Rewrite these commands using the `|>` operator instead of nested function calls:
 unique(evp$vehicle_make)
 sort(unique(evp$vehicle_make))
 ```
-
-```{r}
-
-```
-
-## Using the R Help
-
-One of the most important features that you will need as you start on your path to becoming and R user is getting help. No matter how skilled of a programmer you are, you always encounter new functions and need help understanding how to use them. We will take some time to explore the help features in R.
-
-To get online help within an R session we use the `help()` function. This will allow us to see the documentation on a function that we are interested in.
-
-Let's say we want to import a csv file and we know we need to use the `read.csv` function:
-
-```{r}
-help(read.csv)
-```
-
-You can get help with the `?` function:
-
-```{r}
-?read.csv
-```
-
-Many times we just need to see some examples rather than read the entire documentation of a function or command. In this situation we would use the `example()` function. Consider below where we might be interested in some perspective plots. When you enter this into RStudio you will see some of the beautiful graphics that R can do:
-
-```{r}
-example(persp)
-```
-
-The Run Examples hyperlink at the bottom of the function documentation is generally the quickest way to understand different use cases.
-
-Aside from these areas of help another method is to search the internet for further help. Here are some other resources:
-
--   [The Comprehensive R Archive Network](https://cran.r-project.org/)
-
--   [UCLA Statistical Computing Help Site](http://www.ats.ucla.edu/stat/r/)
-
--   [Google Search Site](http://statseducation.com/Introduction-to-R/modules/getting%20started/help/www.google.com)
-
--   [Github](http://statseducation.com/Introduction-to-R/modules/getting%20started/help/www.github.com)
-
--   [StackExchange](http://stackexchange.com/)
-
-### EXERCISE
-
-Look up the documentation for `lm` . What does this function do? Can you run some examples of this function? What inputs does it take? What outputs does it return?
 
 ```{r}
 
@@ -759,7 +844,7 @@ str_split_fixed("John Oliver is a person who exists", pattern=" ", n = 3)
 
 ### EXERCISE
 
-Load the `evp` dataset, and find all the rows where the reason for stop (reason_for_stop) is a moving violation of any type
+Load the `evp` dataset, and find all the rows where the reason for stop (`reason_for_stop`) is a moving violation of any type
 
 ```{r}
 
