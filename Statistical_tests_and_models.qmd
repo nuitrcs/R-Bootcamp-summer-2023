@@ -20,6 +20,14 @@ The χ2 (chi-squared) tests are most commonly used to test whether two categoric
 
 ```{r}
 library(ggplot2)
+```
+
+```{r, eval=FALSE}
+View(diamonds)
+```
+
+
+```{r}
 table(diamonds$cut, diamonds$color)
 ```
 
@@ -36,13 +44,7 @@ chisq.test(table(diamonds$cut, diamonds$color),
            simulate.p.value = TRUE)
 ```
 
-We can also use pipes to perform the test if we like:
-
-```{r}
-diamonds |> table(cut, color) |> chisq.test()
-```
-
-If both of the variables are binary, i.e. only take two values, the power of the test can be approximated using `power.prop.test`. Let's say that we have two variables, X and Y, taking the values 0 and 1. Assume that we collect n observations with X=0 and n with X=1. Furthermore, let `p1` be the probability that Y=1 if X=0 and `p2` be the probability that Y=1 if X=1. We can then use `power.prop.test` as follows:
+If both of the variables are binary, i.e. only take two values, the power of the test can be approximated using `power.prop.test`. Let's say that we have two variables, X and Y, taking the values 0 and 1. Assume that we collect n observations with X=0 and n with X=1. Furthermore, let `p1` be the probability that Y=1 if X=0 and `p2` be the probability that Y=1 if X=1. We can then use `power.prop.test` as follows:
 
 ```{r}
 # Assume that n = 50, p1 = 0.4 and p2 = 0.5 and compute the power:
@@ -59,6 +61,15 @@ What should you do if your sample sizes are too small, but you'd still like to t
 
 ```{r}
 salem <- read.csv("data/salem_trial.csv")
+```
+
+
+```{r, eval=FALSE}
+View(salem)
+```
+
+
+```{r}
 salem_table <- table(salem)
 salem_table
 ```
@@ -98,7 +109,7 @@ t.test(penguins$body_mass_g[penguins$sex == "male"],
 
 It drops rows/observations with missing values.
 
-If we have a variable that splits our data into two groups, we can use the formula syntax here `variable ~ groups`.
+If we have a variable that splits our data into two groups, we can use the formula syntax here `variable ~ groups`.
 
 ```{r}
 # same as above
