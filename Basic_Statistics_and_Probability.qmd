@@ -26,10 +26,8 @@ View(air)
 R provides useful functions to calculate measures of central tendency:
 
 ```{r}
-x <- air$incidents_00_14
-
-mean(x)
-median(x)
+mean(air$incidents_00_14)
+median(air$incidents_00_14)
 ```
 
 You could also calculate the trimmed mean that is useful to ignore extreme outliers:
@@ -45,32 +43,30 @@ mean(my_data, trim=0.10) # 10% trimmed mean
 The ***range*** of a variable is very simple: it's the biggest value minus the smallest value. The ***interquartile range*** (IQR) is like the range, but instead of calculating the difference between the biggest and smallest value, it calculates the difference between the 25th quantile and the 75th quantile. The 10th ***quantile (**or **percentile)*** of a data set is the smallest number x such that 10% of the data is less than x.
 
 ```{r}
-x <- air$incidents_00_14
-
-range(x) # range
-IQR(x) # inter-quartile range
-quantile(x, probs=c(0.25, 0.75))
+range(air$incidents_00_14) # range
+IQR(air$incidents_00_14) # inter-quartile range
+quantile(air$incidents_00_14, probs=c(0.25, 0.75))
 ```
 
 You could also decide to look at a frequency table instead:
 
 ```{r}
-table(x)
-hist(x, breaks = -1:25)
+table(air$incidents_00_14)
+hist(air$incidents_00_14, breaks = -1:25)
 ```
 
 Similarly, some commonly used measures for variability are:
 
 ```{r}
-sd(x) # standard deviation
-var(x) # variance
-mad(x) # median absolute deviation
+sd(air$incidents_00_14) # standard deviation
+var(air$incidents_00_14) # variance
+mad(air$incidents_00_14) # median absolute deviation
 ```
 
 You can also get an overall summary as:
 
 ```{r}
-summary(x)
+summary(air$incidents_00_14)
 ```
 
 ### Correlation
@@ -93,7 +89,7 @@ However, the `cor()` function is a special case. It doesn't have an `na.rm` argu
 
 ### EXERCISE
 
-What can you say about the number of fatalities when comparing the time period 1985-1999 to the time period 2000-2014?
+What can you say about the number of fatalities when comparing the time period 1985-1999 to the time period 2000-2014? Try a few different functions to summarize and compare these variables.
 
 ```{r}
 
@@ -178,7 +174,7 @@ hist(unfair_model)
 R actually provides *four* functions in relation to the binomial distribution. These four functions are `dbinom()`, `pbinom()`, `rbinom()` and `qbinom()`, and each one calculates a different quantity of interest. Not only that, R does the same thing for *every* probability distribution that it implements. No matter what distribution you're talking about, there's a `d` function, a `p` function, a `q` function and a `r` function.
 
 | What it does                       | Prefix | Binomial distribution | Normal distribution |
-|-----------------------|-----------------|-----------------|-----------------|
+|---------------------|-----------------|-----------------|-----------------|
 | get the probability (density) of   | d      | `dbinom()`            | `dnorm()`           |
 | find the cumulative probability of | p      | `pbinom()`            | `pnorm()`           |
 | generate random number from        | r      | `rbinom()`            | `rnorm()`           |
@@ -264,8 +260,7 @@ Similarly for P(X \>10) and P(X \> 15):
 1 - pbinom(q=15, size=100, prob = 0.05)
 ```
 
-This gives medical professionals an idea of how likely it is that more than a certain number of patients will
-experience negative side effects.
+This gives medical professionals an idea of how likely it is that more than a certain number of patients will experience negative side effects.
 
 ### EXERCISE
 
@@ -277,8 +272,7 @@ The distribution of ACT scores for high school students in the U.S. is normally 
 
 ### EXERCISE
 
-The distribution of diastolic blood pressure is normally distributed with a mean of about 80 and a
-standard deviation of 20. If your blood pressure is 72, what percentage of the population has a blood pressure *greater* than yours?
+The distribution of diastolic blood pressure is normally distributed with a mean of about 80 and a standard deviation of 20. If your blood pressure is 72, what percentage of the population has a blood pressure *greater* than yours?
 
 ```{r}
 
