@@ -702,6 +702,14 @@ Using the `evp` dataset, and convert the columns `subject_race` and `subject_sex
 
 ```
 
+### EXERCISE
+
+Using the `evp` dataset, convert the column `search_basis` to a factor. Then recode all `NA` values into "invalid".
+
+```{r}
+
+```
+
 ## Strings
 
 Text in R is represented by `character` strings. These are created using double or single quotes. I recommend double quotes for three reasons. First, it is the default in R, and is the recommended style (see e.g. `?Quotes`). Second, it improves readability - code with double quotes is easier to read because double quotes are easier to spot than single quotes. Third, it will allow you to easily use apostrophes in your strings, which single quotes don't (because apostrophes will be interpreted as the end of the string). Single quotes can however be used if you need to include double quotes inside your string:
