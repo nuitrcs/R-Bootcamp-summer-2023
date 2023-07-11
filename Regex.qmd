@@ -1,0 +1,230 @@
+---
+title: "Day 2 Bonus"
+format: html
+editor: visual
+execute: 
+  eval: false
+toc: true
+toc-depth: 4
+---
+
+## Regular expressions (regex)
+
+A regular expression, regex, in R is a sequence of characters (or even one character) that describes a certain pattern found in a text. Broadly speaking, the above definition of the regex is related not only to R but also to any other programming language supporting regular expressions. Regex represents a very flexible and powerful tool widely used for processing and mining unstructured text data. For example, they find their application in search engines, lexical analysis, spam filtering, and text editors.
+
+There are a few characters that have a special meaning when used in R regular expressions. More precisely, they don't match themselves, as all letters and digits do, but they do something different:
+
+```{r}
+str_extract_all("unicorn", ".") # extracts all complete matches to the pattern
+```
+
+What if we want to extract a literal dot? For this purpose, we have to use a regex escape character before the dot -- a backslash (\\). However, there is a pitfall here to keep in mind: a backslash is also used in the strings themselves as an escape character. This means that we first need to "escape the escape character," by using **a double backslash**. Let's see how it works:
+
+```{r}
+str_extract_all('Eat. Pray. Love.', '\\.')
+```
+
+Hence, the backslash helps **neglect a special meaning** of some symbols in R regular expressions and interpret them literally. It also has the opposite mission: to **give a special meaning** to some characters that otherwise would be interpreted literally. Below is a table of the most used character escape sequences:
+
+| R regex | What matches      |
+|---------|-------------------|
+| \b      | word boundary     |
+| \B      | non-word boundary |
+| \n      | new line          |
+| \t      | tab               |
+| \v      | vertical tab      |
+
+Let's see how this works with `str_view_all()`. This function is used to print the underlying representation of a string and to see how a pattern matches.
+
+```{r}
+str_view_all('Unicorns are so cute!', 's\\b')
+str_view_all('Unicorns are so cute!', 's\\B')
+```
+
+```{r}
+str_view_all('Unicorns are\nso cute!', '\\n')
+```
+
+### Character classes
+
+A character class matches any character of a predefined set of characters. Built-in character classes have the same syntax as the character escape sequences we saw in the previous section: a backslash followed by a letter to which it gives a special meaning rather than its literal one. The most popular of these constructions are given below:
+
+| R regex | What matches                                      |
+|---------|---------------------------------------------------|
+| \w      | word character (any letter, digit, or underscore) |
+| \W      | non-word character                                |
+| \d      | digit                                             |
+| \D      | non-digit                                         |
+| \s      | space character (space, tab, newline, etc)        |
+| \S      | non-space character                               |
+
+Let's take a look at some self-explanatory examples:
+
+```{r}
+str_view_all('Unicorns are so cute!', '\\w')
+str_view_all('Unicorns are so cute!', '\\W')
+```
+
+```{r}
+str_view_all('Unicorns are\nso cute!', '\\s')
+str_view_all('Unicorns are\nso cute!', '\\S')
+```
+
+```{r}
+str_detect('Unicorns are so cute!', '\\d')
+```
+
+Built-in character classes can also appear in an alternative form -- `[:character_class_name:]`. Some of these character classes have an equivalent among those with a backslash, others don't. The most common ones are:
+
+|              |                                                      |
+|--------------|------------------------------------------------------|
+| **R regex**  | **What matches**                                     |
+| \[:alpha:\]  | Any letter                                           |
+| \[:lower:\]  | Any lowercase letter                                 |
+| \[:upper:\]  | Any uppercase letter                                 |
+| \[:digit:\]  | Any digit (equivalent to \\d)                        |
+| \[:alnum:\]  | Any letter or number                                 |
+| \[:xdigit:\] | Any hexadecimal digit                                |
+| \[:punct:\]  | Any punctuation character                            |
+| \[:graph:\]  | Any letter, number, or punctuation character         |
+| \[:space:\]  | A space, a tab, a new line, etc. (equivalent to \\s) |
+
+Let's explore some examples keeping in mind that we have to put any of the above R regex patterns inside square brackets:
+
+```{r}
+str_view('Unicorns are so cute!', '[:upper:]')
+str_view('Unicorns are so cute!', '[:lower:]')
+```
+
+```{r}
+str_view('Unicorns are so cute! I have 3 unicorns', '[:digit:]')
+```
+
+```{r}
+str_extract_all('Unicorns are so cute!', '[:punct:]')
+```
+
+### User-defined character classes
+
+It's also possible to create a user-defined character class putting inside square brackets any set of characters from which we want to match any one character. We can enclose in square brackets a range of letters or numbers (in Unicode order), several different ranges, or any sequential or nonsequential set of characters or groups of characters.
+
+For example,
+
+-    `[A-D]` will match any uppercase letter from A to D inclusive,
+
+-    `[k-r]` -- any lowercase letter from k to r inclusive,
+
+-   `[0-7]` -- any digit from 0 to 7 inclusive, and
+
+-    `[aou14%9]` -- any of the characters given inside square brackets.
+
+-   If we put the caret (⁠\^) as the first character inside square brackets, our R regex pattern will match **anything but the provided characters**. Note that the above matching mechanisms are **case-sensitive**.
+
+```{r}
+str_view_all('Unicorns Are SOOO Cute!', '[O-V]')
+str_view_all('Unicorns Are SOOO Cute!', '[^O-V]')
+```
+
+```{r}
+str_replace_all('Many moons ago I called Mr. Moon Man', "[Mm]oon", "m")
+```
+
+```{r}
+str_view_all('3.14159265359', '[0-2]')
+```
+
+### Quantifiers
+
+Often, we need to match a certain R regex pattern repetitively, instead of strictly once. For this purpose, we use quantifiers. A quantifier always goes after the regex pattern to which it's related. The most common quantifiers are given in the table below:
+
+|             |                                   |
+|-------------|-----------------------------------|
+| **R regex** | **Number of pattern repetitions** |
+| \*          | 0 or more                         |
+| \+          | at least 1                        |
+| ?           | at most 1                         |
+| {n}         | exactly n                         |
+| {n,}        | at least n                        |
+| {n,m}       | at least n and at most m          |
+
+```{r}
+#  match the string 'dog' followed by zero or more digits.
+str_extract('dog', 'dog\\d*')
+```
+
+```{r}
+# match one or more digits
+str_extract('12345', '\\d+')
+```
+
+```{r}
+# match at most 1 digit
+str_extract('12345', '\\d?')
+```
+
+```{r}
+# match exactly 3 digits
+str_extract('12345', '\\d{3}')
+```
+
+```{r}
+# match at least 7 digits
+str_extract('12345', '\\d{7,}')
+```
+
+```{r}
+str_extract('12345', '\\d{2,4}')
+```
+
+### Anchors
+
+By default, R regex will match any part of a provided string. We can change this behavior by specifying a certain position of an R regex pattern inside the string. Most often, we may want to impose the match from the start or end of the string. For this purpose, we use the two main anchors in R regular expressions:
+
+-   `^` -- matches from the beginning of the string (for multiline strings -- the beginning of each line)
+
+-   `$` -- matches from the end of the string (for multiline strings -- the end of each line)
+
+Let's see how they work on the example of a palindrome *stella won no wallets*:
+
+```{r}
+str_view('stella won no wallets', '^s')
+str_view('stella won no wallets', 's$')
+```
+
+If we want to match the characters \^ or \$ themselves, we need to precede the character of interest with a backslash (**doubling it**):
+
+```{r}
+str_view_all('Do not have 100$, have 100 friends', '\\$')
+```
+
+### EXERCISE
+
+Find the top-level domain (TLD) name of the url below. Some examples of TLDs are com, net, uk, etc.
+
+-   Break down the task into small steps, and solve it step-by-step
+
+-   Remove everything before the TLD of the URL
+
+-   Remove everything after the TLD of the URL
+
+```{r}
+url <- "https://www.reuters.com/article/us-tesla-crash-idUSKCN1VO22E"
+
+```
+
+### EXERCISE
+
+Load the `articles_data.csv` file as below and try to extract all the top-level domains (TLDs) from all the URLs. Which is the most common TLD in this dataset?
+
+```{r}
+articles <- read.csv("data/articles_data.csv")
+View(articles)
+```
+
+Inspect some URLs in the dataset and notice which patterns are **always** present in any URL *before* the TLD and which ones are optional. Notice if there are any **mandatory** patterns in any URL *after* the TLD (and if so, which ones) and which patterns are **optional**
+
+```{r}
+articles$url
+```
+
+[Regex is hard, but useful!](https://global.discourse-cdn.com/business6/uploads/coda1/original/3X/7/2/72507cd4f9b289d55c379be4c64fca6484ec768b.jpeg)
