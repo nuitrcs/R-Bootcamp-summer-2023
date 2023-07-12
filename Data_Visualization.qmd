@@ -1,0 +1,454 @@
+---
+title: "Day 3"
+format: html
+editor: visual
+execute: 
+  eval: false
+toc: true
+toc-depth: 4
+---
+
+# Data Visualization
+
+Often, plotting your data will be much more informative than summary statistics alone. R has built-in plotting functions, as well as several packages such as *ggplot* which offer advanced plotting capabilities.
+
+## Base R plots
+
+Before we get into `{ggplot2}` , let's first look at some basic plotting commands.
+
+### Points
+
+The `plot()` function is used to draw points (markers) in a diagram. The The function takes parameters for specifying points in the diagram. Parameter 1 specifies points on the **x-axis**. Parameter 2 specifies points on the **y-axis**. Let's see a simple example below.
+
+```{r}
+plot(1, 3)
+```
+
+To draw more points, use vectors.
+
+```{r}
+x <- c(1, 2, 3, 4, 5)
+y <- c(3, 7, 8, 9, 12)
+plot(x, y) 
+```
+
+Remember that data frame columns are also vectors!
+
+```{r}
+library(palmerpenguins)
+
+plot(penguins$bill_length_mm, penguins$bill_depth_mm)
+```
+
+### Lines
+
+The `plot()` function also takes a `type` parameter with the value `l` to draw a line to connect all the points in your plot
+
+```{r}
+plot(x, y, type='l') 
+```
+
+### Plot labels
+
+The `plot()` function also accept other parameters, such as `main`, `xlab` and `ylab` if you want to customize the graph with a main title and different labels for the x and y-axis.
+
+```{r}
+plot(x, y, main="My Amazing Graph", xlab="The x-axis", ylab="The y-axis")
+```
+
+### Graph Appearance
+
+There are many other parameters you can use to change the appearance of the points.
+
+Use `col="color"` to add color to the points.
+
+```{r}
+plot(x,y, col="red")
+```
+
+Use `cex=number` to change the size of the points (1 is default, while 0.5 means 50% smaller, and 2 means 100% larger)
+
+```{r}
+plot(x,y, cex=2)
+```
+
+Use `pch` with a value from 0 to 25 to change the point shape format.
+
+```{r}
+plot(x,y, pch=25, cex=2)
+```
+
+The values of the `pch` parameter ranges from 0 to 25, which means that we can choose up to 26 different types of point shapes
+
+![](https://www.w3schools.com/r/r_plot_pch2.png){width="208"}
+
+### EXERCISE
+
+Using the penguins data, plot body mass on y-axis vs flipper length on x-axis for the Chinstrap species. Choose the filled circle marker type and color the markers purple. Set marker size to 0.5, and label the axes and title the graph "Body mass vs Flipper length in Chinstrap penguins".
+
+```{r}
+
+```
+
+# Advanced data viz with *ggplot2*
+
+The R package *ggplot2* is the most widely used and aesthetically pleasing graphics framework available in R. It relies on a structure called the "grammar of graphics". Essentially, it follows a layered approach to describe and construct the visualization.
+
+First, install and load the *ggplot2* package in your workspace.
+
+```{r}
+# install.packages("ggplot2")
+library(ggplot2)
+```
+
+![](https://miro.medium.com/v2/resize:fit:2000/format:webp/1*mcLnnVdHNg-ikDbHJfHDNA.png){width="646"}
+
+Typically, to build or describe any visualization with one or more dimensions, we can use the components as follows.
+
+1.  **Data**: Always start with the data, identify the dimensions you want to visualize.
+
+2.  **Aesthetics**: Confirm the axes based on the data dimensions, positions of various data points in the plot. Also check if any form of encoding is needed including size, shape, color and so on which are useful for plotting multiple data dimensions.
+
+3.  **Scale:** Do we need to scale the potential values, use a specific scale to represent multiple values or a range? For example you can scale the data to log of the original values.
+
+4.  **Geometric objects:** These are popularly known as 'geoms'. This would cover the way we would depict the data points on the visualization. Should it be points, bars, lines and so on?
+
+5.  **Statistics:** Do we need to show some statistical measures in the visualization like measures of central tendency, spread, confidence intervals?
+
+6.  **Facets:** Do we need to create subplots based on specific data dimensions?
+
+7.  **Coordinate system:** What kind of a coordinate system should the visualization be based on ---should it be cartesian or polar?
+
+Here is a handy [cheat sheet for ggplot2](https://statsandr.com/blog/files/ggplot2-cheatsheet.pdf)!
+
+### Grammar of Graphics in Action!
+
+**Data**: We will be using the `penguins` dataset
+
+**Aesthetics**: The x-axis will be flipper length, and the y-axis will be body mass
+
+**Geometric objects**: We choose a dot to represent each data point
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g)) + geom_point()
+```
+
+Notice how layering works with the + operator.
+
+Change the colors and transparency of the points by setting parameters within `geom_points`
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g)) + 
+  geom_point(alpha=0.5)
+```
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g)) + 
+  geom_point(alpha=0.5, color="red")
+```
+
+Now suppose, we want to make the graph more elegant. Let's use themes to clean up the background.
+
+I like using the `theme_pubr()` from the `{ggpubr}` package:
+
+```{r}
+#install.packages("ggpubr")
+library(ggpubr)
+
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g)) + 
+  geom_point(alpha=0.5, color="red") +
+  theme_pubr() 
+```
+
+Themes can be [customized](https://rpubs.com/mclaire19/ggplot2-custom-themes) to every detail - the [possibilities](https://ggplot2.tidyverse.org/reference/theme.html) are endless!
+
+The [`{ggsci}`](https://cran.r-project.org/web/packages/ggsci/vignettes/ggsci.html) package offers a collection of high-quality color palettes inspired by colors used in scientific journals, data visualization libraries, science fiction movies, and TV shows. But there are several in-built themes in ggplot that you can use:
+
+```{r}
+ ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g)) + 
+  geom_point(alpha=0.5, color="red") +
+  theme_classic()
+```
+
+Add labels to the axes
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g)) + 
+  geom_point(alpha=0.5, color="red") +
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+```
+
+However, this data is not very informative! We've mixed up all the species together. Let's try to color each point based on the species it belongs to. We can do this by setting the color in `aes` by the column species.
+
+But first let's see how setting aesthetics using `aes` works.
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, color=species)) +
+  geom_point() +
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+```
+
+You can also do this by setting `group` in `aes` , and setting the aesthetics for `geom_point` separately. This is useful if you want to plot multiple geoms in a plot (eg scatter points and a regression line).
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species)) +
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+```
+
+Let's add some more properties to `geom_point`
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species, 
+                 shape = species),
+             size = 2,
+             alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+```
+
+### EXERCISE
+
+View the `mtcars` dataset (it is already included with R). Plot the weight `wt` on x and the miles per gallon `mpg` on y. What is the relationship between the two variables?
+
+```{r}
+
+```
+
+Choose a theme from the [cheat sheet](https://statsandr.com/blog/files/ggplot2-cheatsheet.pdf) and add it to the plot, along with axis and main titles
+
+```{r}
+
+```
+
+Color the points by gear
+
+```{r}
+
+```
+
+What do you notice about the geom point color that is different from the penguins plot we looked at earlier?
+
+## Saving your beautiful plots!
+
+Suppose you created a bunch of plots and now you want to save them, you can use the [`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html) function:
+
+```{r}
+p <- ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species, 
+                 shape = species),
+             size = 2,
+             alpha = 0.8) +
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+
+name <- "my_beautiful_plot.pdf"
+
+ggsave(name, plot=p, height = 4, width = 6, device="pdf", useDingbats=F) # setting useDingbats to FALSE lets you edit plot fonts in Illustrator
+```
+
+## Changing the Font
+
+Let's see some examples where we change the axis font styles using custom theme inputs:
+
+```{r}
+p + theme(axis.title.x = element_text(color="dodgerblue", size=15, face="italic", family="Comic Sans MS"))
+```
+
+## Arranging multiple plots
+
+If you are preparing several different plots for publication, perhaps you want to arrange them in a grid before exporting and saving them.
+
+Let's create another fictional plot first:
+
+```{r}
+library(ggpubr)
+set.seed(1234)
+wdata = data.frame(sex = factor(rep(c("F", "M"), each=200)), weight = c(rnorm(200, 55), rnorm(200, 58)))
+
+plot_new <- ggdensity(wdata, x = "weight", 
+                      add="mean", rug=TRUE, 
+                      color = "sex", fill = "sex", palette = c("#00AFBB", "#E7B800"))
+plot_new
+```
+
+Using the packages `{grid}` and `{gridExtra}`:
+
+```{r}
+# arrange plot p and plot_new
+library(gridExtra)
+library(grid)
+
+plot_panel <- grid.arrange(p, plot_new, ncol=2)
+plot_panel
+
+plot_panel <- grid.arrange(p, plot_new, nrow=2)
+plot_panel
+```
+
+You can create very [complicated layouts](https://cran.r-project.org/web/packages/gridExtra/vignettes/arrangeGrob.html) if needed. You can also use the `{patchwork}` package to same effect.
+
+## Adding statistical models to graphs
+
+Suppose now that you have a scatter plot which shows a linear relationship, but for publication you would like to add a linear fit line:
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species, 
+                 shape = species),
+             size = 2,
+             alpha = 0.8) +
+  geom_smooth(method="lm") + # add geom_smooth
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+```
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species, 
+                 shape = species),
+             size = 2,
+             alpha = 0.8) +
+  geom_smooth(method="lm",
+              aes(color=species, fill=species), 
+              alpha=0.1) + # let's make it pretty!
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+```
+
+What if I just want a smooth (non-linear) fit?
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species, 
+                 shape = species),
+             size = 2,
+             alpha = 0.8) +
+  geom_smooth(method="loess", # change the smoothing method
+              aes(color=species, fill=species), 
+              alpha=0.1) + 
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data")
+```
+
+## Separating by Facets
+
+The graph above looks quite messy. Maybe we want to separate out the three species into individual panels.
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species, 
+                 shape = species),
+             size = 2,
+             alpha = 0.8) +
+  geom_smooth(method="loess", # change the smoothing method
+              aes(color=species, fill=species), 
+              alpha=0.1) + 
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
+  facet_grid(~species) # facet by species -- note the use of a formula!!
+```
+
+We might also want to facet by two factors, say species and island:
+
+```{r}
+table(penguins$species, penguins$island)
+```
+
+```{r}
+ggplot(data=penguins, aes(x = flipper_length_mm, y = body_mass_g, group=species)) +
+  geom_point(aes(color = species, 
+                 shape = species),
+             size = 2,
+             alpha = 0.8) +
+  geom_smooth(method="lm", # change the smoothing method
+              aes(color=species, fill=species), 
+              alpha=0.1) + 
+  theme_classic() +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)", title = "Penguins Data") +
+  facet_grid(~ species + island) # facet by 2 factors
+```
+
+## Plot types
+
+While scatter plots are very useful, let's look at some simple commands to generate other useful plot types. We will use the Toothgrowth dataset for this.
+
+```{r}
+library(datasets)
+library(ggplot2)
+```
+
+### Boxplots
+
+```{r}
+p <- ggplot(ToothGrowth, aes(factor(dose),len))
+
+p + geom_boxplot(aes(fill=supp)) + 
+  facet_grid(.~supp) + 
+  labs(title ="Figure: Tooth Growth by Supp and Dose") + 
+  theme_pubr()
+```
+
+### Violinplots
+
+```{r}
+p1 <- p + geom_violin(aes(fill=supp)) + 
+        facet_grid(.~supp) + 
+        labs(title ="Figure: Tooth Growth by Supp and Dose") + 
+        theme_pubr()
+p1
+
+p2 <- p + geom_violin(aes(fill=supp), trim=FALSE) + 
+        facet_grid(.~supp) + 
+        labs(title ="Figure: Tooth Growth by Supp and Dose") + 
+        theme_pubr()
+p2
+```
+
+```{r}
+# flip the coordinates
+p2 + coord_flip()
+
+# violin plot with mean points
+p2 + stat_summary(fun.y=mean, geom="point", shape=23, size=2)
+
+# add median and quartile
+p2 + geom_boxplot(width=0.1)
+
+# add mean and sd
+p2 + stat_summary(fun.data="mean_sdl", geom="pointrange", color="black")
+```
+
+### Changing colors
+
+Colors can be customized with either making direct choices or using pre-made palettes.
+
+Find more information about setting plot colors [here](http://www.sthda.com/english/wiki/ggplot2-colors-how-to-change-colors-automatically-and-manually).
+
+```{r}
+# add your desired fill colors
+p2 + scale_fill_manual(values=c("#999999", "#E69F00")) 
+
+# or use a pre-made palette
+p2 + scale_fill_brewer(palette="Dark2")
+```
+
+# PRACTICE
+
+Load in the data set below:
+
+```{r}
+chic <- readr::read_csv(file="data/chicago_weather_data.csv")str(chic)
+View(chic)
+```
+
+```{r}
+str(chic)
+View(chic)
+```
+
+### EXERCISE 1
