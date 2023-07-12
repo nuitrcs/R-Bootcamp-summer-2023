@@ -437,13 +437,14 @@ p2 + scale_fill_manual(values=c("#999999", "#E69F00"))
 p2 + scale_fill_brewer(palette="Dark2")
 ```
 
-# PRACTICE
+# PRACTICE EXERCISES
+
+Several of these exercises will require you to google or look up the documentation.
 
 Load in the data set below:
 
 ```{r}
-chic <- readr::read_csv(file="data/chicago_weather_data.csv")str(chic)
-View(chic)
+chic <- readr::read_csv(file="data/chicago_weather_data.csv")
 ```
 
 ```{r}
@@ -452,3 +453,201 @@ View(chic)
 ```
 
 ### EXERCISE 1
+
+Generate a scatter plot of temperature vs date and add color the points `firebrick`
+
+```{r}
+
+```
+
+### EXERCISE 2
+
+Now add a title to the plot and appropriate axis labels
+
+```{r}
+
+```
+
+### EXERCISE 3
+
+Make the main title bold and grey in color
+
+```{r}
+
+```
+
+### EXERCISE 4
+
+Get rid of axis ticks. Hint: look up the `theme()` and `axis.ticks.y`
+
+```{r}
+
+```
+
+### EXERCISE 5
+
+Limit the range of the axis. Hint: See `ylim()`, `scale_x_continuous()` or `coord_cartesian()`
+
+```{r}
+
+```
+
+### EXERCISE 6
+
+Limit the range of the x-axis from 1995 to 2005. Hint: See `ylim()`, `scale_x_continuous()` or `coord_cartesian()`
+
+```{r}
+
+```
+
+### EXERCISE 7
+
+Color the plot based on season
+
+```{r}
+
+```
+
+### EXERCISE 8
+
+Turn off the legend title. See `legend.title` parameter in `theme()`
+
+```{r}
+
+```
+
+### EXERCISE 9
+
+Change the title of the legend to be more informative
+
+```{r}
+
+```
+
+### EXERCISE 10
+
+Set the theme to make the graph more clean in appearance
+
+```{r}
+
+```
+
+### EXERCISE 11
+
+Create a single row of 4 plots showing data from each year separately. Hint: use facets
+
+```{r}
+
+```
+
+### EXERCISE 12
+
+Make the above plot so that you have a 2x2 grid of plots instead of a row
+
+```{r}
+
+```
+
+### EXERCISE 13
+
+Fit a smooth line to each facet plot. Change the color of the line to `black` and set the fill option to be translucent with `alpha`
+
+```{r}
+
+```
+
+### EXERCISE 14
+
+Set the parameter `scales` to "free" inside the `facet_wrap()` function. What do you notice?
+
+```{r}
+
+```
+
+### EXERCISE 15
+
+Create a grid of plots using 2 variables `year` and `season`
+
+```{r}
+
+```
+
+### EXERCISE 16
+
+Create 2 unrelated plots of your choice from the data. And then arrange them together as you might for a publication.
+
+```{r}
+
+```
+
+### EXERCISE 17
+
+Plot temperature vs date, color by season, and then choose a color palette instead of the default colors
+
+```{r}
+
+```
+
+### EXERCISE 18
+
+Create a boxplot of o3 values by season. Then flip the coordinates for the boxplot
+
+```{r}
+
+```
+
+### EXERCISE 19
+
+Create a violinplot similar to above, that is not trimmed at the ends. Color each season differently.
+
+```{r}
+
+```
+
+### EXERCISE 20
+
+Add the mean and standard deviation for each season to the plot above
+
+```{r}
+
+```
+
+### EXERCISE 21
+
+Generate a scatter plot of temperature vs date and add a trend line to the plot
+
+```{r}
+
+```
+
+### EXERCISE 22
+
+Increase or decrease the smoothness of the trend line
+
+```{r}
+
+```
+
+### EXERCISE 23
+
+Create a density plot of `o3` and color the density lines by factor season. Fill in the density plots also colored by factor season.
+
+```{r}
+
+```
+
+### EXERCISE 24
+
+Add a summary statistic mean for each season to the plot above
+
+```{r}
+
+```
+
+### EXERCISE 25
+
+Save your plot from above with appropriate dimensions
+
+```{r}
+
+```
