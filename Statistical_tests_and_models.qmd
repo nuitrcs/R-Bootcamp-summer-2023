@@ -10,6 +10,78 @@ toc-depth: 4
 
 # Statistical tests and models
 
+## Formulas in R
+
+### Formula
+
+A formula object is a variable, but it's a special type of variable that specifies a relationship between other variables. A formula is specified using the "tilde operator" `~`. A very simple example of a formula is shown below:
+
+```         
+formula1 <- outcome_variable ~ predictor_variable
+formula1
+```
+
+The *precise* meaning of this formula depends on exactly what you want to do with it, but in broad terms it means "the outcome variable, analysed in terms of the predictor variable". That said, although the simplest and most common form of a formula uses the "one variable on the left, one variable on the right" format, there are others. For instance, the following examples are all reasonably common.
+
+```         
+formula2 <-  out ~ pred1 + pred2                 # more than one variable on the right
+formula3 <-  out ~ pred1 + pred2 + pred1:pred2   # add an interaction term
+formula4 <-  out ~ pred1 * pred2                 # different relationship between predictors 
+formula5 <-  ~ var1 + var2                       # a 'one-sided' formula
+```
+
+Formulas are pretty flexible things, and so different functions will make use of different formats, depending on what the function is intended to do.
+
+```         
+formula6 <-  out ~ pred1 + sqrt(pred2)           # transform a predictor variable
+formula7 <-  out ~ pred1 | pred2                 # condition pred1 on pred2
+```
+
+### Generic functions
+
+The thing that makes generic functions different from the other functions is that their behaviour changes, often quite dramatically, depending on the `class()` of the input you give it. The two most notable examples that you'll see are `summary()` and `plot()`. For example:
+
+```{r}
+library(palmerpenguins)
+
+my_formula <- penguins$body_mass_g ~ penguins$sex
+print(my_formula)
+```
+
+So far, there's nothing very surprising here. But there's actually a lot going on behind the scenes here. When I type `print( my_formula )`, what actually happens is the `print()` function checks the class of the `my_formula` variable. When the function discovers that the variable it's been given is a formula, it goes looking for a function called `print.formula()`, and then delegates the whole business of printing out the variable to the `print.formula()` function.
+
+```{r}
+class(my_formula)
+```
+
+Let's see what happens if we bypass the `print()` formula, and try to print out `my_formula` using the `print.default()` function:
+
+```{r}
+print.default(my_formula)
+```
+
+Hm. You can kind of see that it is trying to print out the same formula, but there's a bunch of ugly low-level details that have also turned up on screen. This is because the `print.default()` method doesn't know anything about formulas, and doesn't know that it's supposed to be hiding the obnoxious internal gibberish that R produces sometimes.
+
+### EXERCISE
+
+-   Write a formula which predicts `house_price` based on `sq_footage` , `city_cost_of_living` , `num_schools_within_20_miles` and `proximity_to_greenery`
+
+    ```{r}
+
+    ```
+
+-   Write a formula to predict `mouse_weight` which takes into account `sex`, `diet` and a possible interaction between the two
+
+    ```{r}
+
+    ```
+
+-   Write a formula to predict `sepal_width` based on `petal_width`, the log of `petal_length` and `species`
+
+    ```{r}
+
+    ```
+
 ## Categorical data analysis
 
 **Categorical data analysis** refers to a collection of tools that you can use when your data are nominal scale. However, there are a lot of different tools that can be used for categorical data analysis. We will cover some of the more common ones.
@@ -26,6 +98,7 @@ library(ggplot2)
 View(diamonds)
 ```
 
+Find a description of the features in this dataset [here](https://ggplot2.tidyverse.org/reference/diamonds.html).
 
 ```{r}
 table(diamonds$cut, diamonds$color)
@@ -37,37 +110,47 @@ The null hypothesis of our test is that the quality of the cut (`cut`) and the c
 chisq.test(table(diamonds$cut, diamonds$color))
 ```
 
-By default, `chisq.test` uses an asymptotic approximation of the p-value. For small sample sizes, it is almost often better to use permutation p-values by setting `simulate.p.value = TRUE` (but here the sample is not small, and so the computation of the permutation test will take a while):
+By default, `chisq.test` uses an asymptotic approximation of the p-value, meaning that `n` must be large enough. (Basically, each of the $\frac{(O - E)^2}{E}$ values must be, as random objects, getting close to normally distributed. For small sample sizes, it is almost often better to use permutation p-values by setting `simulate.p.value = TRUE` (but in our example the sample is not small, and so the computation of the permutation test will take a while). The goal of the simulation is to understand the sampling distribution of the test statistic not by theoretical means, but rather by simulating lots of values and looking at how common large values are.
 
 ```{r}
 chisq.test(table(diamonds$cut, diamonds$color),
            simulate.p.value = TRUE)
 ```
 
-If both of the variables are binary, i.e. only take two values, the power of the test can be approximated using `power.prop.test`. Let's say that we have two variables, X and Y, taking the values 0 and 1. Assume that we collect n observations with X=0 and n with X=1. Furthermore, let `p1` be the probability that Y=1 if X=0 and `p2` be the probability that Y=1 if X=1. We can then use `power.prop.test` as follows:
+If both of the variables are binary, i.e. only take two values, the power of the test can be approximated using `power.prop.test`. The statistical power of a hypothesis test is the probability of detecting an effect, if there is a true effect present to detect.
+
+Let's say that we have two variables, X and Y, taking the values 0 and 1. Assume that we collect n observations with X=0 and n with X=1. Furthermore, let `p1` be the probability that Y=1 if X=0 and `p2` be the probability that Y=1 if X=1. We can then use `power.prop.test` as follows:
 
 ```{r}
-# Assume that n = 50, p1 = 0.4 and p2 = 0.5 and compute the power:
-power.prop.test(n = 50, p1 = 0.4, p2 = 0.5, sig.level = 0.05)
+# Compute the power given n, p1 and p2:
+power.prop.test(n  = 50,    #  number of observations (per group)
+                p1 = 0.4,  # 	probability in one group
+                p2 = 0.5,  #  probability in other group
+                sig.level = 0.05)
+```
 
+Now suppose you want to compute sample size given a desired power:
+
+```{r}
 # Assume that p1 = 0.4 and p2 = 0.5 and that we want 85 % power.
 # To compute the sample size required:
-power.prop.test(power = 0.85, p1 = 0.4, p2 = 0.5, sig.level = 0.05)
+power.prop.test(power = 0.85,  # desired power of test (1 minus Type II error probability)
+                p1 = 0.4,      # probability in one group
+                p2 = 0.5,      #  probability in other group
+                sig.level = 0.05)
 ```
 
 ### The Fischer exact test
 
-What should you do if your sample sizes are too small, but you'd still like to test the null hypothesis that the two variables are independent? To illustrate the basic idea, let's suppose that we're analysing data from a field experiment, looking at the emotional status of people who have been accused of witchcraft; some of whom are currently being burned at the stake. Unfortunately for the scientist (but rather fortunately for the general populace), it's actually quite hard to find people in the process of being set on fire, so the cell counts are awfully small in some cases. The `salem_trial.csv` file illustrates the point:
+What should you do if your sample sizes per group are too small (usually less than 20 is considered small), but you'd still like to test the null hypothesis that the two variables are independent? To illustrate the basic idea, let's suppose that we're analysing data from a field experiment, looking at the emotional status of people who have been accused of witchcraft; some of whom are currently being burned at the stake. Unfortunately for the scientist (but rather fortunately for the general populace), it's actually quite hard to find people in the process of being set on fire, so the cell counts are awfully small in some cases. The `salem_trial.csv` file illustrates the point:
 
 ```{r}
 salem <- read.csv("data/salem_trial.csv")
 ```
 
-
 ```{r, eval=FALSE}
 View(salem)
 ```
-
 
 ```{r}
 salem_table <- table(salem)
@@ -88,17 +171,29 @@ fisher.test(salem_table)
 
 This is a bit more output than we got from some of our earlier tests. The main thing we're interested in here is the p-value, which in this case is small enough (p=.036) to justify rejecting the null hypothesis that people on fire are just as happy as people not on fire.
 
+### EXERCISE
+
+Load the penguins dataset, and test if there is a dependence between the number of species collected by year.
+
+```{r}
+
+```
+
 ## Comparing means of continuous values
 
 The standard answer to the problem of comparing means is to use a t-test, of which there are several varieties depending on exactly what question you want to solve.
 
-Say you want to test if the mean of your data is significantly different from a hypothesised mean:
+### One-sample t-test
+
+Say you want to test if the mean of your data is significantly different from a hypothesized mean:
 
 ```{r}
 library(palmerpenguins)
 
 t.test(penguins$body_mass_g, mu=4000) # one sample t-test
 ```
+
+### Two-sample t-test
 
 Similarly, to compare the means of two different samples:
 
@@ -116,14 +211,251 @@ If we have a variable that splits our data into two groups, we can use the formu
 t.test(formula = body_mass_g ~ sex, data=penguins)
 ```
 
+### Paired t-test
+
 Finally, we come to the paired samples t-test. Supposing you want to test the efficacy of an antibiotic drug by comparing the levels of bacteria before and after drug administration:
 
 ```{r}
 antibiotic <- read.csv("data/antibiotic.csv")
+```
 
+```{r}
+View(antibiotic)
+```
+
+```{r}
 t.test(antibiotic$before, antibiotic$after, paired=TRUE)
 ```
 
-## Checking the normality of a sample
+### EXERCISE
 
-A lot of statistical tests assume
+Use `mtcars` data (read feature description [here](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)) to test if the mode of transmission (encoded in `am`) significantly affects the miles per gallon `mpg` value.
+
+```{r}
+
+```
+
+### Checking the normality of a sample
+
+Most of the tests that we have discussed so far have assumed that the data are normally distributed. If normality is assumed by all the tests, and is mostly but not always satisfied (at least approximately) b real world data, how can we check the normality of a sample?
+
+#### QQ plots
+
+One way to check whether a sample violates the normality assumption is to draw a ***"quantile-quantile" plot*** (QQ plot). This allows you to visually check whether you're seeing any systematic violations. In a QQ plot, each observation is plotted as a single dot. The x co-ordinate is the theoretical quantile that the observation should fall in, if the data were normally distributed (with mean and variance estimated from the sample) and on the y co-ordinate is the actual quantile of the data within the sample.
+
+```{r}
+my_data <- rnorm( n = 100 )  # generate N = 100 normally distributed numbers
+hist( x = my_data ) 
+```
+
+```{r}
+qqnorm( y = my_data )        # draw the QQ plot
+```
+
+#### Shapiro-Wilk tests
+
+Although QQ plots provide a nice way to informally check the normality of your data, sometimes you'll want to do something a bit more formal. The Shapiro-Wilk test calculates the W statistic. The W statistic has a maximum value of 1, which arises when the data look "perfectly normal". The smaller the value of W, the less normal the data are. As you'd expect, the null hypothesis being tested is that a set of N observations is normally distributed.
+
+```{r}
+shapiro.test( x = my_data )
+```
+
+While we won't cover this explicitly today, you can use the `wilcox.test` function to test non-normal distribution means.
+
+### EXERCISE
+
+Test the normality of the following data vector:
+
+```{r}
+my_data <- rbinom(n=30, size=5, p=0.5)
+```
+
+### Correlation
+
+We saw earlier how to compute correlations:
+
+```{r}
+cor(penguins$bill_depth_mm, penguins$bill_length_mm)
+```
+
+Remember, the `use` parameter to deal with missing values:
+
+```{r}
+cor(penguins$bill_depth_mm, penguins$bill_length_mm,
+    use = "pairwise")
+```
+
+Is our correlation "significant"?
+
+```{r}
+cor.test(penguins$bill_depth_mm, penguins$bill_length_mm,
+    use = "pairwise")
+```
+
+We can write the same thing with a formula syntax:
+
+```{r}
+cor.test( ~ bill_depth_mm + bill_length_mm, data = penguins, use="pairwise")
+```
+
+This seems strange that there's a negative correlation between these measures. We will explore this more in detail when we start to visualize our data!
+
+### EXERCISE
+
+Test the correlation between flipper length and body mass in `penguins` with a formula.
+
+```{r}
+
+```
+
+### ANOVA
+
+ANOVA extends the idea of a t-test to more groups. We can see if the average values of a continuous variable are different for different groups. We use `aov()` to run the model. Let's see how this works with the `penguins` data:
+
+```{r}
+aov(body_mass_g ~ species, data = penguins)
+```
+
+Note: there are a different number of each species of penguins, which means this is an unbalanced ANOVA. Not ideal statistically. We get a note to this effect in the output.
+
+We can get more information from the results with the summary function:
+
+```{r}
+my_aov1 <- aov(body_mass_g ~ species, data=penguins)
+summary(my_aov1)
+```
+
+We can add in additional blocking variables or do a two-way ANOVA
+
+```{r}
+my_aov2 <- aov(body_mass_g ~ species + sex, data=penguins)
+summary(my_aov2)
+```
+
+Which of these models is better? We can use `anova()` to compare models created with `aov()`.
+
+```{r}
+anova(my_aov1, my_aov2)
+```
+
+What's the error? There were missing values in the sex variable, so there's a different number of observations in the two models. The comparison between two or more models will only be valid if they are fitted to the same dataset. We can address this by using only observations with no missing values at all:
+
+```{r}
+my_aov1 <- aov(body_mass_g ~ species, data=na.omit(penguins))
+my_aov2 <- aov(body_mass_g ~ species + sex, data=na.omit(penguins))
+anova(my_aov1, my_aov2)
+```
+
+Adding sex results in a better fitting model.
+
+### EXERCISE
+
+Test if adding the variable `year` improves on the model `my_aov2` above.
+
+```{r}
+
+```
+
+## Linear Regression
+
+To compute a linear regression, we use the `lm()` function (linear model) and the special formula syntax:
+
+```{r}
+reg1 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm , data=penguins)
+reg1
+```
+
+To get more than just the coefficient estimates in the output, use the summary function on the resulting regression object:
+
+```{r}
+summary(reg1)
+```
+
+The result of the regression is an lm model object, which contains multiple pieces of information. We can access these different components if we need to.
+
+```{r}
+names(reg1)
+```
+
+```{r}
+reg1$coefficients
+```
+
+The result of the summary function is a different object, with some different components:
+
+```{r}
+names(summary(reg1))
+```
+
+But we can still extract the information
+
+```{r}
+summary(reg1)$coefficients
+```
+
+Finally, simply using the generic `plot()` function on a regression model provides some very helpful information:
+
+```{r}
+plot(reg1)
+```
+
+If you want to compare several models you can use the `AIC()` or `BIC()` functions. Lower scores are better.
+
+```{r}
+reg1 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm , data=penguins)
+reg2 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm  + bill_depth_mm, data=penguins)
+reg3 <- lm(body_mass_g ~ flipper_length_mm + bill_length_mm  + sex, data=penguins)
+
+AIC(reg1, reg2, reg3)
+
+BIC(reg1, reg2, reg3)
+```
+
+### EXERCISE
+
+Does body mass depend on species and/or sex?
+
+```{r}
+
+```
+
+### EXERCISE
+
+Test if there is a significant interaction between flipper length and bill length for predicting body mass in male Gentoo penguins
+
+```{r}
+
+```
+
+### EXERCISE
+
+Which among the three species has the highest $R^2$ value for predicting body mass from flipper length?
+
+```{r}
+
+```
+
+## Logistic Regression
+
+Other types of linear regression models, such as logit and probit models for binary outcome variables, can be run with the `glm()`function.
+
+Let's see how this works. Let's try to predict sex based on other features.
+
+```{r}
+table(penguins$sex)
+```
+
+We need the y/dependent/outcome variable to be 0/1 or TRUE/FALSE, which converts to 0/1
+
+```{r}
+penguins$sex <- penguins$sex == "female"
+table(penguins$sex)
+```
+
+The main difference from a ordinary linear regression is that we use the `glm()` function instead of `lm()` and we specify the family to indicate the type of model.
+
+```{r}
+logit1 <- glm(sex ~ body_mass_g + flipper_length_mm , data=penguins,
+              family="binomial")
+summary(logit1)
+```
